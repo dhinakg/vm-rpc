@@ -1,9 +1,9 @@
-from pypresence import Presence # The simple rich presence client in pypresence
+from pypresence import Presence
 import time
 import subprocess
 import os.path
 
-# vmwarepath = "D:\\VMWare Workstation\\"
+
 if os.path.isfile("clientID.txt"):
     idfile = open("clientID.txt")
     for line in idfile:
@@ -26,7 +26,7 @@ RPC.connect()
 print("Connected to RPC.")
 LASTSTATUS = ""
 
-# client_ID = "518230088228274178"
+
 
 print("Please note that Discord has a 15 second delay in sending Rich Presence updates.")
 while True:
