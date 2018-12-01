@@ -19,6 +19,14 @@ else:
     # Prompt for path
     vmwarepath = input("Enter path to VMware Workstation folder: ")
 
+# Get large image key
+if Path("largeImage.txt").is_file():
+    # Large image key found
+    largeimage = Path("largeImage.txt").read_text()
+else:
+    # None found, ignore
+    largeimage = None
+
 # Remove quotes from path if necessary
 vmwarepath = vmwarepath.replace("\"", "")
 vmwarepath = vmwarepath.replace("\'", "")
@@ -72,6 +80,10 @@ while True:
             # Get epoch time
             now = datetime.utcnow()
             epoch_time = int((now - datetime(1970, 1, 1)).total_seconds())
+        if largeimage == None:
+            largetext = None
+        else:
+            largetext = "Check out vm-rpc by DhinakG on GitHub!"
         # The big RPC update
-        RPC.update(state=STATUS,details="Running VMware",large_image="vm",large_text="Check out vm-rpc by DhinakG on GitHub!",start=epoch_time,party_size=vmcount)
+        RPC.update(state=STATUS,details="Running VMware",large_image=largeimage,large_text=largetext,start=epoch_time,party_size=vmcount)
         LASTSTATUS = STATUS # Update last status to last status sent
