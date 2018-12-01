@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# special files
+clientID.txt
+vmwarePath.txt
