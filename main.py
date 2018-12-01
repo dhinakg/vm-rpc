@@ -47,5 +47,6 @@ while True:
                 displayName = line[15:][:-2]
                 STATUS = "Virtualizing " + displayName
     if STATUS != LASTSTATUS:
+        print("Rich presence updated locally; new rich presence is: " + STATUS)
         RPC.update(state=STATUS,details="Running VMware")
         LASTSTATUS = STATUS
