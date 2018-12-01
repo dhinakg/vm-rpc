@@ -28,7 +28,7 @@ LASTSTATUS = ""
 
 
 
-print("Please note that Discord has a 15 second delay in sending Rich Presence updates.")
+print("Please note that Discord has a 15 second ratelimit in sending Rich Presence updates.")
 while True:
     file = subprocess.run([VMRUNPATH, COMMAND], stdout=subprocess.PIPE)
     file = file.stdout.decode('utf-8')
