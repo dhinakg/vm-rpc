@@ -34,3 +34,6 @@
 # special files
 clientID.txt
 vmwarePath.txt
+
+# VS Code files
+.vscode/
