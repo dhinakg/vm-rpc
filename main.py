@@ -18,6 +18,8 @@ if os.path.isfile("vmwarePath.txt"):
 else:
     vmwarepath = input("Enter path to VMware Workstation folder, with backslashes or escaped frontslashes: ")
 
+vmwarepath = vmwarepath.replace("\"", "")
+vmwarepath = os.path.join(vmwarepath, '')
 VMRUNPATH = vmwarepath + "vmrun.exe"
 COMMAND = "list"
 
