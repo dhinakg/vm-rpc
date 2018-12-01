@@ -1,54 +1,77 @@
-from pypresence import Presence
-import time
-import subprocess
-import os.path
+from pypresence import Presence # For rich presence
+import subprocess # For running VMs
+from datetime import datetime # For epoch time
+from pathlib import Path, PurePath, PureWindowsPath # For reading files
 
-
-if os.path.isfile("clientID.txt"):
-    idfile = open("clientID.txt")
-    for line in idfile:
-        client_ID = line.rstrip()
+# get Client ID
+if Path("clientID.txt").is_file():
+    # Client ID found in file
+    client_ID = Path("clientID.txt").read_text()
 else:
+    # Prompt for ID
     client_ID = input("Enter client ID: ")
 
-if os.path.isfile("vmwarePath.txt"):
-    vmwarefile = open("vmwarePath.txt")
-    for line in vmwarefile:
-        vmwarepath = line.rstrip()
+# Get path to VMware
+if Path("vmwarePath.txt").is_file():
+    # VMware path found in file
+    vmwarepath = Path("vmwarePath.txt").read_text()
 else:
-    vmwarepath = input("Enter path to VMware Workstation folder, with backslashes or escaped frontslashes: ")
+    # Prompt for path
+    vmwarepath = input("Enter path to VMware Workstation folder: ")
 
+# Remove quotes from path if necessary
 vmwarepath = vmwarepath.replace("\"", "")
-vmwarepath = os.path.join(vmwarepath, '')
-VMRUNPATH = vmwarepath + "vmrun.exe"
-COMMAND = "list"
+vmwarepath = vmwarepath.replace("\'", "")
 
-RPC = Presence(client_ID, pipe=0)
+vmrunpath = Path(vmwarepath).joinpath("vmrun.exe") # Create the path to vmrun
+
+COMMAND = "list" # Static command to run
+
+
+# Set up RPC
+RPC = Presence(client_ID)
 RPC.connect()
 print("Connected to RPC.")
+# Create last sent status so we don't spam Discord
 LASTSTATUS = ""
+# Set time to 0 to update on next change
+epoch_time = 0
 
-
-
+# Warning
 print("Please note that Discord has a 15 second ratelimit in sending Rich Presence updates.")
+
+# Run on a loop
 while True:
-    file = subprocess.run([VMRUNPATH, COMMAND], stdout=subprocess.PIPE)
+    # Run vmrun list, capture output, and split it up
+    file = subprocess.run([str(vmrunpath), COMMAND], stdout=subprocess.PIPE)
     file = file.stdout.decode('utf-8')
     filearray = file.split("\n")
-    del filearray[-1]
+    del filearray[-1] # Delete the blank line at the end
     if file == "Total running VMs: 0\r\n":
+        # No VMs running, clear rich presence and set time to update on next change
+        epoch_time = 0
         RPC.clear()
         continue
     elif len(filearray) >= 3:
+        # Too many VMs to fit in field
         STATUS = "Running multiple VMs"
+        # Get VM count so we can show how many are running
+        vmcount = [len(filearray) - 1, len(filearray) - 1]
     else:
+        # Init variable
         displayName = ""
-        handle = open(filearray[1].rstrip())
-        for line in handle:
-            if "displayName" in line:
-                displayName = line[15:][:-2]
-                STATUS = "Virtualizing " + displayName
-    if STATUS != LASTSTATUS:
-        print("Rich presence updated locally; new rich presence is: " + STATUS)
-        RPC.update(state=STATUS,details="Running VMware")
-        LASTSTATUS = STATUS
+        vmx = Path(filearray[1].rstrip()) # New Path() to the VMX
+        for line in vmx.read_text().split("\n"): # Get text from VMX, split on a new line
+            if "displayName" in line: # Check if this is the displayName
+                displayName = line[15:][:-1] # Get the display name
+                STATUS = "Virtualizing " + displayName # Set status
+        vmcount = None # Only 1 VM, so set vmcount to None
+    if STATUS != LASTSTATUS: # To prevent spamming Discord, only update when something changes
+        print("Rich presence updated locally; new rich presence is: " + STATUS) # Report of status change, before ratelimit
+        if epoch_time == 0: # Only change the time if we stopped running VMs before
+            # Get epoch time
+            now = datetime.utcnow()
+            epoch_time = int((now - datetime(1970, 1, 1)).total_seconds())
+        # The big RPC update
+        RPC.update(state=STATUS,details="Running VMware",large_image="vm",large_text="Check out vm-rpc by DhinakG on GitHub!",start=epoch_time,party_size=vmcount)
+        LASTSTATUS = STATUS # Update last status to last status sent
