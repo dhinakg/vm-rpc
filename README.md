@@ -17,3 +17,6 @@ Note: Discord has a 15 second ratelimit in sending Rich Presence updates.
 
 TO-DO
 * Hyper-V support
+* VirtualBox support
+* Switch client IDs based on current hypervisor
+* Switch large image based on current hypervisor
