@@ -1,7 +1,9 @@
 # vm-rpc
 Discord RPC for VMs. 
 
-**Works with VMware Workstation 14/15. VMware Player 14/15 users, see [here](https://github.com/dhinakg/vm-rpc/blob/master/vix.md), then follow instructions below.**
+**Works with VMware Workstation 14/15. VMware Player 14/15 users, see [here](https://github.com/dhinakg/vm-rpc/blob/master/vix.md).**
+
+**Do you have VMware Workstation 14? Please see [here](https://github.com/dhinakg/vm-rpc/releases/tag/vmware-vix) to send me some files that I need.**
 
 How to use:
 1. Create a Discord app. (https://discordapp.com/developers/)
