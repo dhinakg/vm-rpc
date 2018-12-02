@@ -46,6 +46,7 @@ print("Please note that Discord has a 15 second ratelimit in sending Rich Presen
 # Run on a loop
 while True:
     # Run vmrun list, capture output, and split it up
+    vmware.updateOutput()
     if vmware.isRunning() == False:
         # No VMs running, clear rich presence and set time to update on next change
         epoch_time = 0
