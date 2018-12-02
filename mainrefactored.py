@@ -2,7 +2,7 @@ from pypresence import Presence # For rich presence
 import subprocess # For running VMs
 from datetime import datetime # For epoch time
 from pathlib import Path, PurePath, PureWindowsPath # For reading files
-
+from vmware import vmware
 # get Client ID
 if Path("clientID.txt").is_file():
     # Client ID found in file
@@ -28,12 +28,7 @@ else:
     largeimage = None
 
 # Remove quotes from path if necessary
-vmwarepath = vmwarepath.replace("\"", "")
-vmwarepath = vmwarepath.replace("\'", "")
-
-vmrunpath = Path(vmwarepath).joinpath("vmrun.exe") # Create the path to vmrun
-
-COMMAND = "list" # Static command to run
+vmware = vmware(vmwarepath)
 
 
 # Set up RPC
@@ -51,28 +46,20 @@ print("Please note that Discord has a 15 second ratelimit in sending Rich Presen
 # Run on a loop
 while True:
     # Run vmrun list, capture output, and split it up
-    file = subprocess.run([str(vmrunpath), COMMAND], stdout=subprocess.PIPE)
-    file = file.stdout.decode('utf-8')
-    filearray = file.split("\r\n")
-    del filearray[-1] # Delete the blank line at the end
-    if file == "Total running VMs: 0\r\n":
+    if vmware.isRunning() == False:
         # No VMs running, clear rich presence and set time to update on next change
         epoch_time = 0
         RPC.clear()
         continue
-    elif len(filearray) >= 3:
+    elif vmware.runCount() > 1:
         # Too many VMs to fit in field
         STATUS = "Running VMs"
         # Get VM count so we can show how many are running
-        vmcount = [len(filearray) - 1, len(filearray) - 1]
+        vmcount = [vmware.runCount(), vmware.runCount()]
     else:
         # Init variable
-        displayName = ""
-        vmx = Path(filearray[1].rstrip()) # New Path() to the VMX
-        for line in vmx.read_text().split("\n"): # Get text from VMX, split on a new line
-            if "displayName" in line: # Check if this is the displayName
-                displayName = line[15:][:-1] # Get the display name
-                STATUS = "Virtualizing " + displayName # Set status
+        displayName = vmware.getRunningVMName(0)
+        STATUS = "Virtualizing " + displayName # Set status
         vmcount = None # Only 1 VM, so set vmcount to None
     if STATUS != LASTSTATUS: # To prevent spamming Discord, only update when something changes
         print("Rich presence updated locally; new rich presence is: " + STATUS) # Report of status change, before ratelimit
