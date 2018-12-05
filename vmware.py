@@ -1,5 +1,6 @@
 import subprocess
-from pathlib import *
+from pathlib import Path
+import staticConstant
 
 class vmware(object):
     vmrunpath = None
@@ -36,9 +37,24 @@ class vmware(object):
                 value = line[len(property) + 4:][:-1]
                 break
         return value
-    def getVMName(self, path):
-        return self.getVMProperty(path, "displayName")
     def getRunningVMProperty(self, index, property):
         return self.getVMProperty(self.getRunningVMPath(index), property)
-    def getRunningVMName(self, index):
+    def getName(self, path):
+        return self.getVMProperty(path, "displayName")
+    def getRunningName(self, index):
         return self.getRunningVMProperty(index, "displayName")
+    def getGuestOS(self, path, raw=None):
+        if raw == None or raw == False:
+            property = self.getVMProperty(path, "guestOS")
+            return staticConstant.guestOS.get(property, "Unknown")
+        else:
+            return self.getVMProperty(path, "guestOS")
+    def getRunningGuestOS(self, index, raw=None):
+        if raw == None or raw == False:
+            property = self.getRunningVMProperty(index, "guestOS")
+            return staticConstant.guestOS.get(property, "Unknown")
+        else:
+            return self.getRunningVMProperty(index, "guestOS")
+
+test = vmware("D:\\VMWare Workstation\\")
+print(test.getGuestOS("d:\Virtual Machines\VMware\macOS 10.14\macOS 10.14.vmx"))
