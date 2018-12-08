@@ -59,7 +59,7 @@ while True:
         vmcount = [vmware.runCount(), vmware.runCount()]
     else:
         # Init variable
-        displayName = vmware.getRunningVMName(0)
+        displayName = vmware.getRunningGuestName(0)
         STATUS = "Virtualizing " + displayName # Set status
         vmcount = None # Only 1 VM, so set vmcount to None
     if STATUS != LASTSTATUS: # To prevent spamming Discord, only update when something changes

@@ -39,9 +39,9 @@ class vmware(object):
         return value
     def getRunningVMProperty(self, index, property):
         return self.getVMProperty(self.getRunningVMPath(index), property)
-    def getName(self, path):
+    def getGuestName(self, path):
         return self.getVMProperty(path, "displayName")
-    def getRunningName(self, index):
+    def getRunningGuestName(self, index):
         return self.getRunningVMProperty(index, "displayName")
     def getGuestOS(self, path, raw=None):
         if raw == None or raw == False:
@@ -55,6 +55,3 @@ class vmware(object):
             return staticConstant.guestOS.get(property, "Unknown")
         else:
             return self.getRunningVMProperty(index, "guestOS")
-
-test = vmware("D:\\VMWare Workstation\\")
-print(test.getGuestOS("d:\Virtual Machines\VMware\macOS 10.14\macOS 10.14.vmx"))
