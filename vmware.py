@@ -9,12 +9,12 @@ class vmware(object):
         vmwarepath = vmwarepath.replace("\"", "")
         vmwarepath = vmwarepath.replace("\'", "")
         self.vmrunpath = Path(vmwarepath).joinpath("vmrun.exe")
+        self.updateOutput()
     def updateOutput(self):
         output = subprocess.run([str(self.vmrunpath), "list"], stdout=subprocess.PIPE)
         output = output.stdout.decode("utf-8")
         output = output.split("\r\n")
-        del output[-1]
-        self.output = output
+        self.output = [x for x in output if len(x)] # Don't rely on always having a blank element at the end, thanks CorpNewt
     def runCount(self):
         return len(self.output) - 1
     def isRunning(self):
@@ -23,12 +23,11 @@ class vmware(object):
         else:
             return False
     def getRunningVMPath(self, index = None):
-        output = self.output
-        del output[0]
+        # Thanks to CorpNewt for the fix
         if index != None:
-            return output[index]
+            return self.output[index + 1]
         else:
-            return output
+            return self.output[1:]
     def getVMProperty(self, path, property):
         vmx = Path(path)
         value = None
