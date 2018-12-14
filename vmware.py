@@ -23,8 +23,10 @@ class vmware(object):
         else:
             return False
     def getRunningVMPath(self, index = None):
+        if self.isRunning() == False:
+            return None
         # Thanks to CorpNewt for the fix
-        if index != None:
+        elif index != None:
             return self.output[index + 1]
         else:
             return self.output[1:]
