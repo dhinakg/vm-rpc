@@ -46,12 +46,3 @@ class hyperv(object):
             return self.runningVMs[index + 2]
         else:
             return self.runningVMs[2:]
-
-hi = hyperv()
-print(hi.runningVMs)
-print(hi.getRunningGuestName(0))
-print(hi.runCount())
-print(hi.isRunning())
-print(hi.getGuestName())
-print(hi.getGuestName(0))
-print(hi.VMs)

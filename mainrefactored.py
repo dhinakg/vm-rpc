@@ -1,9 +1,11 @@
+hypervisors = ["", "hyper-v"]
+
 from pypresence import Presence # For rich presence
 import subprocess # For running VMs
 from datetime import datetime # For epoch time
 from pathlib import Path, PurePath, PureWindowsPath # For reading files
 from vmware import vmware
-from hyper-v import hyperv
+from hyperv import hyperv
 # get Client ID
 if Path("clientID.txt").is_file():
     # Client ID found in file
@@ -12,13 +14,14 @@ else:
     # Prompt for ID
     client_ID = input("Enter client ID: ")
 
-# Get path to VMware
-if Path("vmwarePath.txt").is_file():
-    # VMware path found in file
-    vmwarepath = Path("vmwarePath.txt").read_text()
-else:
-    # Prompt for path
-    vmwarepath = input("Enter path to VMware Workstation folder: ")
+if "vmware" in hypervisors:
+    # Get path to VMware
+    if Path("vmwarePath.txt").is_file():
+        # VMware path found in file
+        vmwarepath = Path("vmwarePath.txt").read_text()
+    else:
+        # Prompt for path
+        vmwarepath = input("Enter path to VMware Workstation folder: ")
 
 # Get large image key
 if Path("largeImage.txt").is_file():
@@ -28,18 +31,21 @@ else:
     # None found, ignore
     largeimage = None
 
-# Initialize VMware
-vmware = vmware(vmwarepath)
+if "vmware" in hypervisors:
+    # Initialize VMware
+    vmware = vmware(vmwarepath)
 
-# Initialize Hyper-V
-hyperv = hyperv()
+if "hyper-v" in hypervisors:
+    # Initialize Hyper-V
+    hyperv = hyperv()
 
 # Set up RPC
 RPC = Presence(client_ID)
 RPC.connect()
 print("Connected to RPC.")
 # Create last sent status so we don't spam Discord
-LASTSTATUS = ""
+LASTSTATUS = None
+STATUS = None
 # Set time to 0 to update on next change
 epoch_time = 0
 
@@ -49,22 +55,39 @@ print("Please note that Discord has a 15 second ratelimit in sending Rich Presen
 # Run on a loop
 while True:
     # Run vmrun list, capture output, and split it up
-    vmware.updateOutput()
-    if vmware.isRunning() == False:
-        # No VMs running, clear rich presence and set time to update on next change
-        epoch_time = 0
-        RPC.clear()
-        continue
-    elif vmware.runCount() > 1:
-        # Too many VMs to fit in field
-        STATUS = "Running VMs"
-        # Get VM count so we can show how many are running
-        vmcount = [vmware.runCount(), vmware.runCount()]
-    else:
-        # Init variable
-        displayName = vmware.getRunningGuestName(0)
-        STATUS = "Virtualizing " + displayName # Set status
-        vmcount = None # Only 1 VM, so set vmcount to None
+    STATUS = None
+    if "vmware" in hypervisors:
+        vmware.updateOutput()
+        if vmware.isRunning() == False:
+            # No VMs running, clear rich presence and set time to update on next change
+            epoch_time = 0
+            RPC.clear()
+        elif vmware.runCount() > 1:
+            # Too many VMs to fit in field
+            STATUS = "Running VMs"
+            # Get VM count so we can show how many are running
+            vmcount = [vmware.runCount(), vmware.runCount()]
+        else:
+            # Init variable
+            displayName = vmware.getRunningGuestName(0)
+            STATUS = "Virtualizing " + displayName # Set status
+            vmcount = None # Only 1 VM, so set vmcount to None
+    if "hyper-v" in hypervisors:
+        hyperv.updateRunningVMs()
+        if hyperv.isRunning() == False:
+            # No VMs running, clear rich presence and set time to update on next change
+            epoch_time = 0
+            RPC.clear()
+        elif hyperv.runCount() > 1:
+            # Too many VMs to fit in field
+            STATUS = "Running VMs"
+            # Get VM count so we can show how many are running
+            vmcount = [hyperv.runCount(), hyperv.runCount()]
+        else:
+            # Init variable
+            displayName = hyperv.getRunningGuestName(0)
+            STATUS = "Virtualizing " + displayName # Set status
+            vmcount = None # Only 1 VM, so set vmcount to none
     if STATUS != LASTSTATUS: # To prevent spamming Discord, only update when something changes
         print("Rich presence updated locally; new rich presence is: " + STATUS) # Report of status change, before ratelimit
         if epoch_time == 0: # Only change the time if we stopped running VMs before
