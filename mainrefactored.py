@@ -1,4 +1,4 @@
-hypervisors = ["", "hyper-v"]
+hypervisors = ["", "hyper-v"] # supported values are "hyper-v" and "vmware"
 
 from pypresence import Presence # For rich presence
 import subprocess # For running VMs
