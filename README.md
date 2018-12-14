@@ -20,5 +20,6 @@ TO-DO
 - [ ] Add Hyper-V to code
 - [ ] VirtualBox library
 - [ ] Add VirtualBox to code
+- [ ] Add custom hypervisor priority
 - [ ] Switch client IDs based on current hypervisor
 - [ ] Switch large image based on current hypervisor
