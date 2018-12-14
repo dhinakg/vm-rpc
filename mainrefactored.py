@@ -3,6 +3,7 @@ import subprocess # For running VMs
 from datetime import datetime # For epoch time
 from pathlib import Path, PurePath, PureWindowsPath # For reading files
 from vmware import vmware
+from hyper-v import hyperv
 # get Client ID
 if Path("clientID.txt").is_file():
     # Client ID found in file
@@ -27,9 +28,11 @@ else:
     # None found, ignore
     largeimage = None
 
-# Remove quotes from path if necessary
+# Initialize VMware
 vmware = vmware(vmwarepath)
 
+# Initialize Hyper-V
+hyperv = hyperv()
 
 # Set up RPC
 RPC = Presence(client_ID)
