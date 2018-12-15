@@ -17,7 +17,7 @@ Note: Discord has a 15 second ratelimit in sending Rich Presence updates.
 
 TO-DO
 - [x] Hyper-V library
-- [ ] Add Hyper-V to code
+- [x] Add Hyper-V to code
 - [ ] VirtualBox library
 - [ ] Add VirtualBox to code
 - [ ] Add custom hypervisor priority
