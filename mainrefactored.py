@@ -62,6 +62,8 @@ while True:
             # No VMs running, clear rich presence and set time to update on next change
             epoch_time = 0
             RPC.clear()
+            STATUS = None
+            LASTSTATUS = None
         elif vmware.runCount() > 1:
             # Too many VMs to fit in field
             STATUS = "Running VMs"
@@ -78,6 +80,8 @@ while True:
             # No VMs running, clear rich presence and set time to update on next change
             epoch_time = 0
             RPC.clear()
+            STATUS = None
+            LASTSTATUS = None
         elif hyperv.runCount() > 1:
             # Too many VMs to fit in field
             STATUS = "Running VMs"
@@ -88,7 +92,7 @@ while True:
             displayName = hyperv.getRunningGuestName(0)
             STATUS = "Virtualizing " + displayName # Set status
             vmcount = None # Only 1 VM, so set vmcount to none
-    if STATUS != LASTSTATUS: # To prevent spamming Discord, only update when something changes
+    if STATUS != LASTSTATUS and STATUS != None: # To prevent spamming Discord, only update when something changes
         print("Rich presence updated locally; new rich presence is: " + STATUS) # Report of status change, before ratelimit
         if epoch_time == 0: # Only change the time if we stopped running VMs before
             # Get epoch time
