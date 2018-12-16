@@ -1,5 +1,3 @@
-hypervisors = ["vmware", ""] # supported values are "hyper-v" and "vmware"
-
 from pypresence import Presence, DiscordError, exceptions, InvalidPipe # For rich presence
 import subprocess # For running VMs
 from datetime import datetime # For epoch time
@@ -59,7 +57,7 @@ except InvalidPipe:
             RPC.connect()
             print("Connected to RPC.")
             break
-        except:
+        except InvalidPipe:
             pass
         sleep(5)
 else:
@@ -101,6 +99,11 @@ while True:
             HYPERVISOR = "Running VMware"
     if "hyper-v" in hypervisors:
         hyperv.updateRunningVMs()
+        if hyperv.isFound() == False:
+            print("Hyper-V either not supported, enabled, or found on this machine. Disabling Hyper-V for this session.")
+            while "hyper-v" in hypervisors:
+                hypervisors.remove("hyper-v")
+            continue
         if hyperv.isRunning() == False:
             # No VMs running, clear rich presence and set time to update on next change
             epoch_time = 0
