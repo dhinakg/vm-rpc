@@ -118,6 +118,7 @@ dmypy.json
 clientID.txt
 vmwarePath.txt
 largeImage.txt
+hypervisors.txt
 
 # VS Code files
 .vscode/

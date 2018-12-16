@@ -7,8 +7,6 @@ import staticConstant
 class hyperv(object):
     runningVMs = None
     VMs = None
-    def __init__(self):
-        self.updateOutput()
     def updateVMs(self):
         VMs = subprocess.run(["powershell", "Get-VM | Select Name"], stdout=subprocess.PIPE)
         VMs = VMs.stdout.decode("utf-8")

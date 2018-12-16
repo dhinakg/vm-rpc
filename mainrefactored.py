@@ -1,4 +1,4 @@
-hypervisors = ["", "hyper-v"] # supported values are "hyper-v" and "vmware"
+hypervisors = ["vmware", ""] # supported values are "hyper-v" and "vmware"
 
 from pypresence import Presence # For rich presence
 import subprocess # For running VMs
@@ -13,6 +13,14 @@ if Path("clientID.txt").is_file():
 else:
     # Prompt for ID
     client_ID = input("Enter client ID: ")
+
+# get hypervisors
+if Path("hypervisors.txt").is_file():
+    # Client ID found in file
+    hypervisors = Path("hypervisors.txt").read_text()
+    hypervisors = hypervisors.casefold().split("\n")
+else:
+    hypervisors = ["vmware", "hyper-v"]
 
 if "vmware" in hypervisors:
     # Get path to VMware

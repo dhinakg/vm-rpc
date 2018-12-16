@@ -9,7 +9,6 @@ class vmware(object):
         vmwarepath = vmwarepath.replace("\"", "")
         vmwarepath = vmwarepath.replace("\'", "")
         self.vmrunpath = Path(vmwarepath).joinpath("vmrun.exe")
-        self.updateOutput()
     def updateOutput(self):
         output = subprocess.run([str(self.vmrunpath), "list"], stdout=subprocess.PIPE)
         output = output.stdout.decode("utf-8")
