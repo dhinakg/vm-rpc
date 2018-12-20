@@ -123,7 +123,7 @@ while True:
             vmcount = None # Only 1 VM, so set vmcount to none
             HYPERVISOR = "Hyper-V"
     if STATUS != LASTSTATUS and STATUS != None: # To prevent spamming Discord, only update when something changes
-        print("Rich presence updated locally; new rich presence is: " + STATUS + " (using " + HYPERVISOR) # Report of status change, before ratelimit
+        print("Rich presence updated locally; new rich presence is: " + STATUS + " (using " + HYPERVISOR + ")") # Report of status change, before ratelimit
         if epoch_time == 0: # Only change the time if we stopped running VMs before
             # Get epoch time
             now = datetime.utcnow()
