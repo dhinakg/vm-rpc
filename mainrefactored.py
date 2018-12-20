@@ -90,13 +90,13 @@ while True:
             STATUS = "Running VMs"
             # Get VM count so we can show how many are running
             vmcount = [vmware.runCount(), vmware.runCount()]
-            HYPERVISOR = "Running VMware"
+            HYPERVISOR = "VMware"
         else:
             # Init variable
             displayName = vmware.getRunningGuestName(0)
             STATUS = "Virtualizing " + displayName # Set status
             vmcount = None # Only 1 VM, so set vmcount to None
-            HYPERVISOR = "Running VMware"
+            HYPERVISOR = "VMware"
     if "hyper-v" in hypervisors:
         hyperv.updateRunningVMs()
         if hyperv.isFound() == False:
@@ -115,7 +115,7 @@ while True:
             STATUS = "Running VMs"
             # Get VM count so we can show how many are running
             vmcount = [hyperv.runCount(), hyperv.runCount()]
-            HYPERVISOR = "Running Hyper-V"
+            HYPERVISOR = "Hyper-V"
         else:
             # Init variable
             displayName = hyperv.getRunningGuestName(0)
@@ -133,5 +133,5 @@ while True:
         else:
             largetext = "Check out vm-rpc by DhinakG on GitHub!"
         # The big RPC update
-        RPC.update(state=STATUS,details=HYPERVISOR,large_image=largeimage,large_text=largetext,start=epoch_time,party_size=vmcount)
+        RPC.update(state=STATUS,details="Running " + HYPERVISOR,large_image=largeimage,large_text=largetext,start=epoch_time,party_size=vmcount)
         LASTSTATUS = STATUS # Update last status to last status sent
