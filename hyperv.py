@@ -21,8 +21,11 @@ class hyperv(object):
         self.updateRunningVMs()
         self.updateVMs()
     def isFound(self):
-        if "not recognized" in self.runningVMs[]:
-            return False
+        if self.runningVMs != []:
+            if "not recognized" in self.runningVMs[0]:
+                return False
+            else:
+                return True
         else:
             return True
     def runCount(self):
