@@ -5,6 +5,23 @@ from pathlib import Path, PurePath, PureWindowsPath # For reading files
 from vmware import vmware
 from hyperv import hyperv
 from time import sleep
+
+def clear():
+    global epoch_time
+    global STATUS
+    global LASTSTATUS
+    global running
+    epoch_time = 0
+    RPC.clear()
+    STATUS = None
+    LASTSTATUS = None
+    if running == True:
+        print("Stopped running VMs.")
+        running = False
+    return running
+
+running = False
+
 # get Client ID
 if Path("clientID.txt").is_file():
     # Client ID found in file
@@ -81,17 +98,16 @@ while True:
         vmware.updateOutput()
         if vmware.isRunning() == False:
             # No VMs running, clear rich presence and set time to update on next change
-            epoch_time = 0
-            RPC.clear()
-            STATUS = None
-            LASTSTATUS = None
+            clear()
         elif vmware.runCount() > 1:
+            running = True
             # Too many VMs to fit in field
             STATUS = "Running VMs"
             # Get VM count so we can show how many are running
             vmcount = [vmware.runCount(), vmware.runCount()]
             HYPERVISOR = "VMware"
         else:
+            running = True
             # Init variable
             displayName = vmware.getRunningGuestName(0)
             STATUS = "Virtualizing " + displayName # Set status
@@ -106,17 +122,16 @@ while True:
             continue
         if hyperv.isRunning() == False:
             # No VMs running, clear rich presence and set time to update on next change
-            epoch_time = 0
-            RPC.clear()
-            STATUS = None
-            LASTSTATUS = None
+            clear()
         elif hyperv.runCount() > 1:
+            running = True
             # Too many VMs to fit in field
             STATUS = "Running VMs"
             # Get VM count so we can show how many are running
             vmcount = [hyperv.runCount(), hyperv.runCount()]
             HYPERVISOR = "Hyper-V"
         else:
+            running = True
             # Init variable
             displayName = hyperv.getRunningGuestName(0)
             STATUS = "Virtualizing " + displayName # Set status
