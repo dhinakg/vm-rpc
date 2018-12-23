@@ -13,7 +13,9 @@ How to use:
 5. (Optional, but will ask on runtime if not found and VMware enabled) Create `vmwarePath.txt` with the path to VMware Workstation (the directory), or if using VMware Player, the path to VMware VIX. It must have no extra lines.
 5. (Optional, but will ask on runtime if not found) Create `clientID.txt` with the client ID of your Discord app. It must have no extra lines.
 6. Run `main.py`, or `mainrefactored.py` for the refactor that uses the VMware library. Hyper-V support is only in `mainrefactored.py`, and requires adminstrator privileges.
+
 **Note: If you get `Access is denied`, restart Discord.**
+
 Note: Discord has a 15 second ratelimit in sending Rich Presence updates.
 
 TO-DO
