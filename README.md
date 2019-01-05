@@ -21,6 +21,7 @@ TO-DO
 - [x] Add Hyper-V to code
 - [X] Wait for Discord to open instead of erroring out
 - [X] Stopped running VMs message
+- [X] Multi-platform support
 - [ ] VirtualBox library
 - [ ] Add VirtualBox to code
 - [X] Allow user to enable/disable hypervisor support
