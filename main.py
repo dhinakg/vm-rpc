@@ -41,7 +41,7 @@ else:
 
 if "vmware" in hypervisors:
     # Get path to VMware
-    if sys.platform.lower() == "win32" or sys.platform.lower() == "win64":
+    if platform.lower() == "win32" or platform.lower() == "win64":
         if Path("vmwarePath.txt").is_file():
             # VMware path found in file
             vmwarepath = Path("vmwarePath.txt").read_text()

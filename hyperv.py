@@ -22,7 +22,7 @@ class hyperv(object):
         self.updateRunningVMs()
         self.updateVMs()
     def isFound(self):
-        if sys.platform.lower() != "win32" or sys.platform.lower() != "win64":
+        if platform.lower() != "win32" or platform.lower() != "win64":
             return False
         elif self.runningVMs != []:
             if "not recognized" in self.runningVMs[0]:

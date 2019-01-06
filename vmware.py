@@ -9,7 +9,7 @@ class vmware(object):
     def __init__(self, vmwarepath):
         vmwarepath = vmwarepath.replace("\"", "")
         vmwarepath = vmwarepath.replace("\'", "")
-        if sys.platform.lower() == "win32" or sys.platform.lower() == "win64":
+        if platform.lower() == "win32" or platform.lower() == "win64":
             self.vmrunpath = Path(vmwarepath).joinpath("vmrun.exe")
     def updateOutput(self):
         output = subprocess.run([str(self.vmrunpath), "list"], stdout=subprocess.PIPE)
