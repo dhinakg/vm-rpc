@@ -5,6 +5,7 @@ from pathlib import Path, PurePath, PureWindowsPath # For reading files
 from vmware import vmware
 from hyperv import hyperv
 from time import sleep
+from sys import platform
 
 def clear():
     global epoch_time
@@ -40,12 +41,15 @@ else:
 
 if "vmware" in hypervisors:
     # Get path to VMware
-    if Path("vmwarePath.txt").is_file():
-        # VMware path found in file
-        vmwarepath = Path("vmwarePath.txt").read_text()
+    if sys.platform.lower() == "win32" or sys.platform.lower() == "win64":
+        if Path("vmwarePath.txt").is_file():
+            # VMware path found in file
+            vmwarepath = Path("vmwarePath.txt").read_text()
+        else:
+            # Prompt for path
+            vmwarepath = input("Enter path to VMware Workstation folder: ")
     else:
-        # Prompt for path
-        vmwarepath = input("Enter path to VMware Workstation folder: ")
+        vmwarepath = "vmrun"
 
 # Get large image key
 if Path("largeImage.txt").is_file():

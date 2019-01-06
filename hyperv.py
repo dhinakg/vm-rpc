@@ -3,6 +3,7 @@
 import subprocess
 from pathlib import Path
 import staticConstant
+from sys import platform
 
 class hyperv(object):
     runningVMs = None
@@ -21,7 +22,9 @@ class hyperv(object):
         self.updateRunningVMs()
         self.updateVMs()
     def isFound(self):
-        if self.runningVMs != []:
+        if sys.platform.lower() != "win32" or sys.platform.lower() != "win64":
+            return False
+        elif self.runningVMs != []:
             if "not recognized" in self.runningVMs[0]:
                 return False
             else:

@@ -1,6 +1,7 @@
 import subprocess
 from pathlib import Path
 import staticConstant
+from sys import platform
 
 class vmware(object):
     vmrunpath = None
@@ -8,7 +9,8 @@ class vmware(object):
     def __init__(self, vmwarepath):
         vmwarepath = vmwarepath.replace("\"", "")
         vmwarepath = vmwarepath.replace("\'", "")
-        self.vmrunpath = Path(vmwarepath).joinpath("vmrun.exe")
+        if sys.platform.lower() == "win32" or sys.platform.lower() == "win64":
+            self.vmrunpath = Path(vmwarepath).joinpath("vmrun.exe")
     def updateOutput(self):
         output = subprocess.run([str(self.vmrunpath), "list"], stdout=subprocess.PIPE)
         output = output.stdout.decode("utf-8")
