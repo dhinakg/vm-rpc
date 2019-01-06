@@ -10,7 +10,7 @@ How to use:
 4. (Optional, if not found will enable Hyper-V and VMware) Create `hypervisors.txt`, containing `vmware`, `hyper-v`, or both (case insensitive).
 5. (Optional, but will ask on runtime if not found and VMware enabled) Create `vmwarePath.txt` with the path to VMware Workstation (the directory), or if using VMware Player, the path to VMware VIX. It must have no extra lines.
 5. (Optional, but will ask on runtime if not found) Create `clientID.txt` with the client ID of your Discord app. It must have no extra lines.
-6. Run `main.py`, or `mainrefactored.py` for the refactor that uses the VMware library. Hyper-V support is only in `mainrefactored.py`, and requires adminstrator privileges.
+6. Run `legacy.py`, or `main.py` for the refactor that uses the VMware library. Hyper-V support is only in `main.py`, and requires adminstrator privileges.
 
 **Note: If you get `Access is denied`, restart Discord.**
 
