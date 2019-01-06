@@ -1,5 +1,5 @@
 import subprocess
-from pathlib import Path
+from pathlib import *
 import staticConstant
 from sys import platform
 
@@ -7,14 +7,19 @@ class vmware(object):
     vmrunpath = None
     output = None
     def __init__(self, vmwarepath):
-        vmwarepath = vmwarepath.replace("\"", "")
-        vmwarepath = vmwarepath.replace("\'", "")
         if platform.lower() == "win32" or platform.lower() == "win64":
+            vmwarepath = vmwarepath.replace('\"', "")
+            vmwarepath = vmwarepath.replace("\'", "")
             self.vmrunpath = Path(vmwarepath).joinpath("vmrun.exe")
+        else:
+            self.vmrunpath = vmwarepath
     def updateOutput(self):
         output = subprocess.run([str(self.vmrunpath), "list"], stdout=subprocess.PIPE)
         output = output.stdout.decode("utf-8")
-        output = output.split("\r\n")
+        if platform.lower() == "win32" or platform.lower() == "win64":
+            output = output.split("\r\n")
+        else:
+            output = output.split("\n")
         self.output = [x for x in output if len(x)] # Don't rely on always having a blank element at the end, thanks CorpNewt
     def runCount(self):
         return len(self.output) - 1

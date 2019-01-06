@@ -1,7 +1,7 @@
 from pypresence import Presence, DiscordError, exceptions, InvalidPipe # For rich presence
 import subprocess # For running VMs
 from datetime import datetime # For epoch time
-from pathlib import Path, PurePath, PureWindowsPath # For reading files
+from pathlib import * # For reading files
 from vmware import vmware
 from hyperv import hyperv
 from time import sleep
@@ -49,7 +49,7 @@ if "vmware" in hypervisors:
             # Prompt for path
             vmwarepath = input("Enter path to VMware Workstation folder: ")
     else:
-        vmwarepath = "vmrun"
+        vmwarepath = Path("vmrun")
 
 # Get large image key
 if Path("largeImage.txt").is_file():
