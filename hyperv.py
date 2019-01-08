@@ -23,18 +23,13 @@ class hyperv(object):
         self.updateVMs()
     def isFound(self):
         if platform.lower() != "win32":
-            print("platform")
             return False
         elif self.runningVMs != []:
-            print("not blank")
             if "not recognized" in self.runningVMs[0]:
-                print("not recog")
                 return False
             else:
-                print("recog")
                 return True
         else:
-            print("catch all")
             return True
     def runCount(self):
         if self.runningVMs == []:
