@@ -1,7 +1,8 @@
 import subprocess
 from pathlib import *
-import staticConstant
 from sys import platform
+import json
+guestOS = json.load(open("staticConstant.json"))
 
 class vmware(object):
     vmrunpath = None
@@ -53,12 +54,12 @@ class vmware(object):
     def getGuestOS(self, path, raw=None):
         if raw == None or raw == False:
             property = self.getVMProperty(path, "guestOS")
-            return staticConstant.guestOS.get(property, "Unknown")
+            return guestOS.get(property, "Unknown")
         else:
             return self.getVMProperty(path, "guestOS")
     def getRunningGuestOS(self, index, raw=None):
         if raw == None or raw == False:
             property = self.getRunningVMProperty(index, "guestOS")
-            return staticConstant.guestOS.get(property, "Unknown")
+            return guestOS.get(property, "Unknown")
         else:
             return self.getRunningVMProperty(index, "guestOS")

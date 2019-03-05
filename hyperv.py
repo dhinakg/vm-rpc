@@ -2,7 +2,6 @@
 
 import subprocess
 from pathlib import Path
-import staticConstant
 from sys import platform
 
 class hyperv(object):
