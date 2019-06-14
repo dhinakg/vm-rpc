@@ -6,6 +6,7 @@ from vmware import vmware
 from hyperv import hyperv
 from time import sleep
 from sys import platform
+import json
 
 def clear():
     global epoch_time
@@ -23,41 +24,71 @@ def clear():
 
 running = False
 
-# get Client ID
-if Path("clientID.txt").is_file():
-    # Client ID found in file
+# load JSON settings file
+if Path("settings.json").is_file():
+    # Settings file found
+    settings = json.load(open("settings.json"))
+
+# Get client ID
+if settings.get("clientID"):
+    # client ID found in settings.json and it's not blank (NoneType/blank strings == False)
+    clientID = settings.get("clientID")
+elif Path("clientID.txt").is_file():
+    # Client ID found in legacy file
     client_ID = Path("clientID.txt").read_text()
 else:
     # Prompt for ID
-    client_ID = input("Enter client ID: ")
+    clientID = input("Enter client ID: ")
+    settings["clientID"] = clientID
 
 # get hypervisors
-if Path("hypervisors.txt").is_file():
-    # Client ID found in file
-    hypervisors = Path("hypervisors.txt").read_text()
-    hypervisors = hypervisors.casefold().split("\n")
-else:
-    hypervisors = ["vmware", "hyper-v"]
+hypervisors = []
+if "vmware" in settings and settings.get("vmware").get("enabled", True):
+    hypervisors.append("vmware")
+    settings["vmware"]["enabled"] = True
+if "hyper-v" in settings and settings.get("hyper-v").get("enabled", True):
+    hypervisors.append("hyper-v")
+    settings["hyper-v"]["enabled"] = True
+if hypervisor == []:
+    if Path("hypervisors.txt").is_file():
+        # Client ID found in legacy file
+        hypervisors = Path("hypervisors.txt").read_text()
+        hypervisors = hypervisors.casefold().split("\n")
+    else:
+        hypervisors = ["vmware", "hyper-v"]
+        settings["vmware"] = {}
+        settings["vmware"]["enabled"] = True
+        settings["hyper-v"] = {}
+        settings["hyper-v"]["enabled"] = True
 
 if "vmware" in hypervisors:
     # Get path to VMware
     if platform.lower() == "win32":
-        if Path("vmwarePath.txt").is_file():
-            # VMware path found in file
+        if "vmware" in settings and settings.get("vmware").get("path"):
+            # VMware path found in settings.json and it's not blank (NoneType/blank strings == False)
+            vmwarepath = settings.get("vmware").get("path")
+        elif Path("vmwarePath.txt").is_file():
+            # VMware path found in legacy file
             vmwarepath = Path("vmwarePath.txt").read_text()
         else:
             # Prompt for path
             vmwarepath = input("Enter path to VMware Workstation folder: ")
+            settings["vmware"]["path"] = vmwarepath
     else:
         vmwarepath = Path("vmrun")
 
 # Get large image key
-if Path("largeImage.txt").is_file():
-    # Large image key found
+if settings.get("largeImage"):
+    largeimage = settings.get("largeImage")
+elif Path("largeImage.txt").is_file():
+    # Large image key found in legacy file
     largeimage = Path("largeImage.txt").read_text()
 else:
     # None found, ignore
     largeimage = None
+
+settingsPath = Path("settings.json")
+json.dump(settings, Path("settings.json").open(mode="w",), indent="\t")
 
 if "vmware" in hypervisors:
     # Initialize VMware
@@ -68,7 +99,7 @@ if "hyper-v" in hypervisors:
     hyperv = hyperv()
 
 # Set up RPC
-RPC = Presence(client_ID)
+RPC = Presence(clientID)
 try:
     RPC.connect()
 except InvalidPipe:

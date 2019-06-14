@@ -119,6 +119,7 @@ clientID.txt
 vmwarePath.txt
 largeImage.txt
 hypervisors.txt
+settings.json
 
 # VS Code files
 .vscode/

@@ -9,10 +9,8 @@ How to use:
 1. Create a Discord app. (https://discordapp.com/developers/)
 2. Install Python 3.
 3. Install `pypresence` from `pip`.
-4. (Optional, if not found will enable Hyper-V and VMware) Create `hypervisors.txt`, containing `vmware`, `hyper-v`, or both (case insensitive).
-5. (Optional, but will ask on runtime if not found and VMware enabled and Windows) Create `vmwarePath.txt` with the path to VMware Workstation (the directory), or if using VMware Workstation Player, the path to VMware VIX. It must have no extra lines.
-6. (Optional, but will ask on runtime if not found) Create `clientID.txt` with the client ID of your Discord app. It must have no extra lines.
-7. Run `legacy.py`, or `main.py` for the refactor that uses the VMware library. Hyper-V support is only in `main.py`, and requires adminstrator privileges.
+4. Rename `sample-settings.json` to `settings.json` and configure your settings as neccessary.
+5. Run `main.py`. Hyper-V support requires adminstrator privileges.
 
 **Note: If you get `Access is denied`, restart Discord.**
 
@@ -32,4 +30,4 @@ TO-DO
 - [ ] Switch client IDs based on current hypervisor
 - [ ] Switch large image based on current OS for VMware, and a image of Hyper-V for Hyper-V
 - [ ] Small image of VMware if VMware is current hypervisor
-- [ ] Unified settings file using JSON
+- [X] Unified settings file using JSON
