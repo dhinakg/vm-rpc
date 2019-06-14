@@ -2,6 +2,8 @@
 
 Discord RPC for VMs. 
 
+## This software is still in alpha development.
+
 **Works with VMware Workstation 14/15, VMware Fusion 14/15 and Hyper-V. VMware Workstation Player 14/15 users, see [here](https://github.com/dhinakg/vm-rpc/blob/master/vix.md).**
 
 How to use:
