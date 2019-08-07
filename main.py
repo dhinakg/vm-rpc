@@ -49,7 +49,7 @@ if "vmware" in settings and settings.get("vmware").get("enabled", True):
 if "hyper-v" in settings and settings.get("hyper-v").get("enabled", True):
     hypervisors.append("hyper-v")
     settings["hyper-v"]["enabled"] = True
-if hypervisor == []:
+if hypervisors == []:
     if Path("hypervisors.txt").is_file():
         # Client ID found in legacy file
         hypervisors = Path("hypervisors.txt").read_text()
