@@ -70,6 +70,7 @@ if "vmware" in hypervisors:
         elif Path("vmwarePath.txt").is_file():
             # VMware path found in legacy file
             vmwarepath = Path("vmwarePath.txt").read_text()
+            settings["vmware"]["path"] = vmwarepath
         else:
             # Prompt for path
             vmwarepath = input("Enter path to VMware Workstation folder: ")
@@ -83,6 +84,7 @@ if settings.get("largeImage"):
 elif Path("largeImage.txt").is_file():
     # Large image key found in legacy file
     largeimage = Path("largeImage.txt").read_text()
+    settings["largeImage"] = largeimage
 else:
     # None found, ignore
     largeimage = None
