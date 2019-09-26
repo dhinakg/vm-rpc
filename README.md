@@ -38,4 +38,4 @@ Note: Discord has a 15 second ratelimit in sending Rich Presence updates.
 
 ### Credits
 - [qwertyqwerty](https://github.com/qwertyquerty/) for [pypresence](https://github.com/qwertyquerty/pypresence/)
-- [CorpNewt](https://github.com/corpnewt/) for all the help they've given me with issues
+- [CorpNewt](https://github.com/corpnewt/) for all the help they've given me with code issues
