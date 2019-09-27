@@ -89,7 +89,6 @@ else:
     # None found, ignore
     largeimage = None
 
-settingsPath = Path("settings.json")
 json.dump(settings, Path("settings.json").open(mode="w",), indent="\t")
 
 if "vmware" in hypervisors:
