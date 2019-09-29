@@ -56,10 +56,7 @@ if hypervisors == []:
         hypervisors = hypervisors.casefold().split("\n")
     else:
         hypervisors = ["vmware", "hyper-v"]
-        settings["vmware"] = {}
-        settings["vmware"]["enabled"] = True
-        settings["hyper-v"] = {}
-        settings["hyper-v"]["enabled"] = True
+        settings.update({'vmware': {'enabled': True}, 'hyper-v': {'enabled': True}})
 
 if "vmware" in hypervisors:
     # Get path to VMware
