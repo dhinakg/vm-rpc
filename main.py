@@ -159,12 +159,12 @@ while True:
             vmcount = None # Only 1 VM, so set vmcount to None
             HYPERVISOR = "VMware"
     if "hyper-v" in hypervisors:
-        hyperv.updateRunningVMs()
         if hyperv.isFound() == False:
             print("Hyper-V either not supported, enabled, or found on this machine. Disabling Hyper-V for this session.")
             while "hyper-v" in hypervisors:
                 hypervisors.remove("hyper-v")
             continue
+        hyperv.updateRunningVMs()
         if hyperv.isRunning() == False:
             # No VMs running, clear rich presence and set time to update on next change
             clear()
