@@ -13,11 +13,10 @@ def loadSettings():
     # Get client ID
     if settings.get("clientID"):
         # client ID found in settings.json and it's not blank (NoneType/blank strings == False)
-        clientID = settings.get("clientID")
+        None
     elif Path("clientID.txt").is_file():
         # Client ID found in legacy file
-        client_ID = Path("clientID.txt").read_text()
+        settings["clientID"] =  Path("clientID.txt").read_text()
     else:
         # Prompt for ID
-        clientID = input("Enter client ID: ")
-        settings["clientID"] = clientID
+        settings["clientID"] = input("Enter client ID: ")
