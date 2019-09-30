@@ -8,11 +8,11 @@ from time import sleep
 from sys import platform
 import json
 
+STATUS = LASTSTATUS = None
+running = False
+epoch_time = 0
+
 def clear():
-    global epoch_time
-    global STATUS
-    global LASTSTATUS
-    global running
     epoch_time = 0
     RPC.clear()
     STATUS = None
@@ -20,9 +20,6 @@ def clear():
     if running == True:
         print("Stopped running VMs.")
         running = False
-    return running
-
-running = False
 
 # load JSON settings file
 if Path("settings.json").is_file() and Path("settings.json").stat().st_size != 0:
