@@ -20,3 +20,16 @@ def loadSettings():
     else:
         # Prompt for ID
         settings["clientID"] = input("Enter client ID: ")
+
+    hypervisors = []
+    if "vmware" in settings and settings.get("vmware").get("enabled", True):
+        hypervisors.append("vmware")
+    if "hyper-v" in settings and settings.get("hyper-v").get("enabled", True):
+        hypervisors.append("hyper-v")
+    if hypervisors == []:
+        if Path("hypervisors.txt").is_file():
+            # Client ID found in legacy file
+            hypervisors = Path("hypervisors.txt").read_text()
+            hypervisors = hypervisors.casefold().split("\n")
+        else:
+            settings.update({'vmware': {'enabled': True}, 'hyper-v': {'enabled': True}})
