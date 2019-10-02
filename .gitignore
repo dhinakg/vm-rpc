@@ -120,6 +120,7 @@ vmwarePath.txt
 largeImage.txt
 hypervisors.txt
 settings.json
+getter.py
 
 # VS Code files
 .vscode/

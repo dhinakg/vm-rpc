@@ -25,9 +25,12 @@ def clear():
 running = False
 
 # load JSON settings file
-if Path("settings.json").is_file():
+if Path("settings.json").is_file() and Path("settings.json").stat().st_size != 0:
     # Settings file found
     settings = json.load(open("settings.json"))
+else:
+    Path("settings.json").touch()
+    settings = {}
 
 # Get client ID
 if settings.get("clientID"):
@@ -71,6 +74,14 @@ if "vmware" in hypervisors:
             # VMware path found in legacy file
             vmwarepath = Path("vmwarePath.txt").read_text()
             settings["vmware"]["path"] = vmwarepath
+        elif Path("C:/Program Files (x86)/VMware/VMware Workstation/vmrun.exe").is_file():
+            print("Using C:/Program Files (x86)/VMware/VMware Workstation as path.")
+            vmwarepath = Path("C:/Program Files (x86)/VMware/VMware Workstation")
+            settings["vmware"]["path"] = vmwarepath.as_posix()
+        elif Path("C:/Program Files/VMware/VMware Workstation/vmrun.exe").is_file():
+            print("Using C:/Program Files/VMware/VMware Workstation as path.")
+            vmwarepath = Path("C:/Program Files/VMware/VMware Workstation")
+            settings["vmware"]["path"] = vmwarepath.as_posix()
         else:
             # Prompt for path
             vmwarepath = input("Enter path to VMware Workstation folder: ")
