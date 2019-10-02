@@ -119,8 +119,15 @@ clientID.txt
 vmwarePath.txt
 largeImage.txt
 hypervisors.txt
+<<<<<<< HEAD
 settings.json
+=======
+settings.json
+>>>>>>> 78252eccada019ece8748d9fa02aa66c0b2a8499
 getter.py
 
 # VS Code files
 .vscode/
+
+# macOS files
+.DS_Store

@@ -1,14 +1,16 @@
 # vm-rpc
 
-Discord RPC for VMs. 
+Discord RPC for VMs.
 
-## This software is still in alpha development.
+## This software is still in alpha development
+
+[![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=flat-square&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 
 **Works with VMware Workstation 14/15, VMware Fusion 14/15 and Hyper-V. VMware Workstation Player 14/15 users, see [here](https://github.com/dhinakg/vm-rpc/blob/master/vix.md).**
 
-How to use:
+### How to use
 
-1. Create a Discord app. (https://discordapp.com/developers/)
+1. Create a Discord app. [https://discordapp.com/developers/](https://discordapp.com/developers/)
 2. Install Python 3.
 3. Install `pypresence` from `pip`.
 4. Rename `sample-settings.json` to `settings.json` and configure your settings as neccessary.
@@ -18,7 +20,7 @@ How to use:
 
 Note: Discord has a 15 second ratelimit in sending Rich Presence updates.
 
-TO-DO
+### TO-DO
 
 - [x] Hyper-V library
 - [x] Add Hyper-V to code
@@ -33,3 +35,8 @@ TO-DO
 - [ ] Switch large image based on current OS for VMware, and a image of Hyper-V for Hyper-V
 - [ ] Small image of VMware if VMware is current hypervisor
 - [X] Unified settings file using JSON
+
+### Credits
+
+- [qwertyqwerty](https://github.com/qwertyquerty/) for [pypresence](https://github.com/qwertyquerty/pypresence/)
+- [CorpNewt](https://github.com/corpnewt/) for all the help they've given me with code issues
