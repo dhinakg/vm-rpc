@@ -7,39 +7,32 @@ def getLegacySettings(setting):
     if setting == "clientID":
         if Path("clientID.txt").is_file():
             # Client ID found in legacy file
-            return Path("clientID.txt").read_text()
+            contents = Path("clientID.txt").read_text()
+            Path("clientID.txt").unlink()
+            return contents
         else:
             return ""
     if setting == "hypervisors":
         if Path("hypervisors.txt").is_file():
-            return Path("hypervisors.txt").read_text().casefold().split("\n")
+            contents = Path("hypervisors.txt").read_text().casefold().split("\n")
+            Path("hypervisors.txt").unlink()
+            return contents
         else:
             return ""
     if setting == "largeImage":
         if Path("largeImage.txt").is_file():
-            return Path("largeImage.txt").read_text()
+            contents = Path("largeImage.txt").read_text()
+            Path("largeImage.txt").unlink()
+            return contents
         else:
             return ""
     if setting == "vmwarePath":
         if Path("vmwarePath.txt").is_file():
-            return Path("vmwarePath.txt").read_text()
+            contents = Path("vmwarePath.txt").read_text()
+            Path("vmwarePath.txt").unlink()
+            return contents
         else:
             return ""
-
-def cleanLegacySettings(setting = None):
-    if setting == "clientID" and Path("clientID.txt").is_file():
-        Path("clientID.txt").unlink()
-    elif setting == "hypervisors" and Path("hypervisors.txt").is_file():
-        Path("hypervisors.txt").unlink()
-    elif setting == "largeImage" and Path("largeImage.txt").is_file():
-        Path("largeImage.txt").unlink()
-    elif setting == "vmwarePath" and Path("vmwarePath.txt").is_file():
-        Path("vmwarePath.txt").unlink()
-    elif setting == None:
-        Path("clientID.txt").unlink()
-        Path("hypervisors.txt").unlink()
-        Path("largeImage.txt").unlink()
-        Path("vmwarePath.txt").unlink()
 
 def loadSettings():
     # load JSON settings file
