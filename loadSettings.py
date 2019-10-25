@@ -87,18 +87,17 @@ def loadSettings():
                 vmwarepath = settings.get("vmware").get("path")
             elif getLegacySettings("vmwarePath"):
                 # VMware path found in legacy file
-                settings["vmware"]["path"] = getLegacySettings("vmwarePath");
+                vmwarepath = settings["vmware"]["path"] = getLegacySettings("vmwarePath");
             # Check default paths
             else:
                 for path in ["C:/Program Files (x86)/VMware/VMware Workstation/vmrun.exe", "C:/Program Files/VMware/VMware Workstation/vmrun.exe"]:
                     if Path(path).is_file():
                         print("Using " + path + " as path.")
-                        settings["vmware"]["path"] = Path(path).as_posix()
+                        vmwarepath = settings["vmware"]["path"] = Path(path).as_posix()
                         break
                 if path == "":
                     # Prompt for path
-                    vmwarepath = input("Enter path to VMware Workstation folder: ")
-                    settings["vmware"]["path"] = vmwarepath
+                    vmwarepath = settings["vmware"]["path"] = input("Enter path to VMware Workstation folder: ")
         else:
             # For non Windows OSes we assume vmrun is in the path
             vmwarepath = Path("vmrun")
@@ -112,3 +111,7 @@ def loadSettings():
     else:
         # None found, ignore
         largeimage = None
+    
+    settingsPath = Path("settings.json")
+    json.dump(settings, Path("settings.json").open(mode="w",), indent="\t")
+    return settings, hypervisors, vmwarepath

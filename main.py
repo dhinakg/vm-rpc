@@ -6,6 +6,7 @@ from vmware import vmware
 from hyperv import hyperv
 from time import sleep
 from sys import platform
+from loadSettings import *
 import json
 
 STATUS = LASTSTATUS = None
@@ -21,81 +22,7 @@ def clear():
         print("Stopped running VMs.")
         running = False
 
-# load JSON settings file
-if Path("settings.json").is_file() and Path("settings.json").stat().st_size != 0:
-    # Settings file found
-    settings = json.load(open("settings.json"))
-else:
-    Path("settings.json").touch()
-    settings = {}
-
-# Get client ID
-if settings.get("clientID"):
-    # client ID found in settings.json and it's not blank (NoneType/blank strings == False)
-    clientID = settings.get("clientID")
-elif Path("clientID.txt").is_file():
-    # Client ID found in legacy file
-    client_ID = Path("clientID.txt").read_text()
-else:
-    # Prompt for ID
-    clientID = input("Enter client ID: ")
-    settings["clientID"] = clientID
-
-# get hypervisors
-hypervisors = []
-if "vmware" in settings and settings.get("vmware").get("enabled", True):
-    hypervisors.append("vmware")
-    settings["vmware"]["enabled"] = True
-if "hyper-v" in settings and settings.get("hyper-v").get("enabled", True):
-    hypervisors.append("hyper-v")
-    settings["hyper-v"]["enabled"] = True
-if hypervisors == []:
-    if Path("hypervisors.txt").is_file():
-        # Client ID found in legacy file
-        hypervisors = Path("hypervisors.txt").read_text()
-        hypervisors = hypervisors.casefold().split("\n")
-    else:
-        hypervisors = ["vmware", "hyper-v"]
-        settings.update({'vmware': {'enabled': True}, 'hyper-v': {'enabled': True}})
-
-if "vmware" in hypervisors:
-    # Get path to VMware
-    if platform.lower() == "win32":
-        if "vmware" in settings and settings.get("vmware").get("path"):
-            # VMware path found in settings.json and it's not blank (NoneType/blank strings == False)
-            vmwarepath = settings.get("vmware").get("path")
-        elif Path("vmwarePath.txt").is_file():
-            # VMware path found in legacy file
-            vmwarepath = Path("vmwarePath.txt").read_text()
-            settings["vmware"]["path"] = vmwarepath
-        elif Path("C:/Program Files (x86)/VMware/VMware Workstation/vmrun.exe").is_file():
-            print("Using C:/Program Files (x86)/VMware/VMware Workstation as path.")
-            vmwarepath = Path("C:/Program Files (x86)/VMware/VMware Workstation")
-            settings["vmware"]["path"] = vmwarepath.as_posix()
-        elif Path("C:/Program Files/VMware/VMware Workstation/vmrun.exe").is_file():
-            print("Using C:/Program Files/VMware/VMware Workstation as path.")
-            vmwarepath = Path("C:/Program Files/VMware/VMware Workstation")
-            settings["vmware"]["path"] = vmwarepath.as_posix()
-        else:
-            # Prompt for path
-            vmwarepath = input("Enter path to VMware Workstation folder: ")
-            settings["vmware"]["path"] = vmwarepath
-    else:
-        vmwarepath = Path("vmrun")
-
-# Get large image key
-if settings.get("largeImage"):
-    largeimage = settings.get("largeImage")
-elif Path("largeImage.txt").is_file():
-    # Large image key found in legacy file
-    largeimage = Path("largeImage.txt").read_text()
-    settings["largeImage"] = largeimage
-else:
-    # None found, ignore
-    largeimage = None
-
-settingsPath = Path("settings.json")
-json.dump(settings, Path("settings.json").open(mode="w",), indent="\t")
+settings, hypervisors, vmwarepath = loadSettings()
 
 if "vmware" in hypervisors:
     # Initialize VMware
@@ -106,7 +33,7 @@ if "hyper-v" in hypervisors:
     hyperv = hyperv()
 
 # Set up RPC
-RPC = Presence(clientID)
+RPC = Presence(settings["clientID"])
 try:
     RPC.connect()
 except InvalidPipe:
@@ -135,7 +62,6 @@ print("Please note that Discord has a 15 second ratelimit in sending Rich Presen
 # Run on a loop
 while True:
     # Run vmrun list, capture output, and split it up
-    STATUS = None
     if "vmware" in hypervisors:
         vmware.updateOutput()
         if vmware.isRunning() == False:
@@ -185,10 +111,10 @@ while True:
             # Get epoch time
             now = datetime.utcnow()
             epoch_time = int((now - datetime(1970, 1, 1)).total_seconds())
-        if largeimage == None:
+        if settings["largeImage"] == None:
             largetext = None
         else:
             largetext = "Check out vm-rpc by DhinakG on GitHub!"
         # The big RPC update
-        RPC.update(state=STATUS,details="Running " + HYPERVISOR,large_image=largeimage,large_text=largetext,start=epoch_time,party_size=vmcount)
+        RPC.update(state=STATUS,details="Running " + HYPERVISOR,large_image=settings["largeImage"],large_text=largetext,start=epoch_time,party_size=vmcount)
         LASTSTATUS = STATUS # Update last status to last status sent
