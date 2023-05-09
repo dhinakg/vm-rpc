@@ -4,6 +4,7 @@ from datetime import datetime # For epoch time
 from pathlib import * # For reading files
 from vmware import vmware
 from hyperv import hyperv
+from virtualbox import virtualbox
 from time import sleep
 from sys import platform
 import json
@@ -52,14 +53,17 @@ if "vmware" in settings and settings.get("vmware").get("enabled", True):
 if "hyper-v" in settings and settings.get("hyper-v").get("enabled", True):
     hypervisors.append("hyper-v")
     settings["hyper-v"]["enabled"] = True
+if "virtualbox" in settings and settings.get("virtualbox").get("enabled", True):
+    hypervisors.append("virtualbox")
+    settings["virtualbox"]["enabled"] = True
 if hypervisors == []:
     if Path("hypervisors.txt").is_file():
         # Client ID found in legacy file
         hypervisors = Path("hypervisors.txt").read_text()
         hypervisors = hypervisors.casefold().split("\n")
     else:
-        hypervisors = ["vmware", "hyper-v"]
-        settings.update({'vmware': {'enabled': True}, 'hyper-v': {'enabled': True}})
+        hypervisors = ["vmware", "hyper-v", "virtualbox"]
+        settings.update({'vmware': {'enabled': True}, 'hyper-v': {'enabled': True}, 'virtualbox': {'enabled': True}})
 
 if "vmware" in hypervisors:
     # Get path to VMware
@@ -85,6 +89,30 @@ if "vmware" in hypervisors:
             settings["vmware"]["path"] = vmwarepath
     else:
         vmwarepath = Path("vmrun")
+if "virtualbox" in hypervisors:
+    # Get path to VMware
+    if platform.lower() == "win32":
+        if "virtualbox" in settings and settings.get("virtualbox").get("path"):
+            # VirtualBox path found in settings.json and it's not blank (NoneType/blank strings == False)
+            virtualboxpath = settings.get("virtualbox").get("path")
+        elif Path("virtualboxPath.txt").is_file():
+            # VirtualBox path found in legacy file
+            virtualboxpath = Path("virtualboxPath.txt").read_text()
+            settings["virtualbox"]["path"] = virtualboxpath
+        elif Path("C:/Program Files (x86)/Oracle/VirtualBox/VBoxManage.exe").is_file():
+            print("Using C:/Program Files (x86)/Oracle/VirtualBox/ as path.")
+            virtualboxpath = Path("C:/Program Files (x86)/Oracle/VirtualBox/")
+            settings["virtualbox"]["path"] = virtualboxpath.as_posix()
+        elif Path("C:/Program Files/Oracle/VirtualBox/VBoxManage.exe").is_file():
+            print("Using C:/Program Files/Oracle/VirtualBox/ as path.")
+            virtualboxpath = Path("C:/Program Files/Oracle/VirtualBox")
+            settings["virtualbox"]["path"] = virtualboxpath.as_posix()
+        else:
+            # Prompt for path
+            virtualboxpath = input("Enter path to VirtualBox folder: ")
+            settings["virtualbox"]["path"] = virtualboxpath
+    else:
+        virtualbox = Path("vboxmanage")
 
 # Get large image key
 if settings.get("largeImage"):
@@ -96,6 +124,16 @@ elif Path("largeImage.txt").is_file():
 else:
     # None found, ignore
     largeimage = None
+# Get small image key
+if settings.get("smallImage"):
+    smallimage = settings.get("smallImage")
+elif Path("smallImage.txt").is_file():
+    # Small image key found in legacy file
+    smallimage = Path("smallImage.txt").read_text()
+    settings["smallImage"] = smallimage
+else:
+    # None found, ignore
+    smallimage = None
 
 settingsPath = Path("settings.json")
 json.dump(settings, Path("settings.json").open(mode="w",), indent="\t")
@@ -107,6 +145,10 @@ if "vmware" in hypervisors:
 if "hyper-v" in hypervisors:
     # Initialize Hyper-V
     hyperv = hyperv()
+
+if "virtualbox" in hypervisors:
+    # Initialize VirtualBox
+    virtualbox = virtualbox(virtualboxpath)
 
 # Set up RPC
 RPC = Presence(clientID)
@@ -182,16 +224,38 @@ while True:
             STATUS = "Virtualizing " + displayName # Set status
             vmcount = None # Only 1 VM, so set vmcount to none
             HYPERVISOR = "Hyper-V"
+    if "virtualbox" in hypervisors:
+        virtualbox.updateOutput()
+        if virtualbox.isRunning() == False:
+            # No VMs running, clear rich presence and set time to update on next change
+            clear()
+        elif virtualbox.runCount() > 1:
+            running = True
+            # Too many VMs to fit in field
+            STATUS = "Running VMs"
+            # Get VM count so we can show how many are running
+            vmcount = [virtualbox.runCount(), virtualbox.runCount()]
+            HYPERVISOR = "VirtualBox"
+        else:
+            running = True
+            # Init variable
+            displayName = virtualbox.getRunningGuestName()
+            STATUS = "Virtualizing " + displayName # Set status
+            vmcount = None # Only 1 VM, so set vmcount to None
+            HYPERVISOR = "VirtualBox"
     if STATUS != LASTSTATUS and STATUS != None: # To prevent spamming Discord, only update when something changes
         print("Rich presence updated locally; new rich presence is: " + STATUS + " (using " + HYPERVISOR + ")") # Report of status change, before ratelimit
         if epoch_time == 0: # Only change the time if we stopped running VMs before
             # Get epoch time
-            now = datetime.utcnow()
-            epoch_time = int((now - datetime(1970, 1, 1)).total_seconds())
+            if virtualbox.isRunning() and virtualbox.runCount() == 1:
+                epoch_time = virtualbox.getVMuptime()
+            else:
+                now = datetime.utcnow()
+                epoch_time = int((now - datetime(1970, 1, 1)).total_seconds())
         if largeimage == None:
             largetext = None
         else:
             largetext = "Check out vm-rpc by DhinakG on GitHub!"
         # The big RPC update
-        RPC.update(state=STATUS,details="Running " + HYPERVISOR,large_image=largeimage,large_text=largetext,start=epoch_time,party_size=vmcount)
+        RPC.update(state=STATUS,details="Running " + HYPERVISOR,small_image=smallimage,large_image=largeimage,small_text=HYPERVISOR,large_text=largetext,start=epoch_time,party_size=vmcount)
         LASTSTATUS = STATUS # Update last status to last status sent
