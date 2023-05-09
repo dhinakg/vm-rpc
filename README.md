@@ -22,13 +22,12 @@ Note: Discord has a 15 second ratelimit in sending Rich Presence updates.
 
 ### TO-DO
 
-- [x] Hyper-V library
-- [x] Add Hyper-V to code
+- [X] Hyper-V library
+- [X] Add Hyper-V to code
 - [X] Wait for Discord to open instead of erroring out
 - [X] Stopped running VMs message
 - [X] Multi-platform support
-- [ ] VirtualBox library
-- [ ] Add VirtualBox to code
+- [X] Add VirtualBox to code
 - [X] Allow user to enable/disable hypervisor support
 - [ ] Add custom hypervisor priority
 - [ ] Switch client IDs based on current hypervisor
