@@ -6,14 +6,14 @@ Discord RPC for VMs.
 
 [![pypresence](https://img.shields.io/badge/using-pypresence-00bb88.svg?style=flat-square&logo=discord&logoWidth=20)](https://github.com/qwertyquerty/pypresence)
 
-**Works with VMware Workstation 14/15, VMware Fusion 14/15 and Hyper-V. VMware Workstation Player 14/15 users, see [here](https://github.com/dhinakg/vm-rpc/blob/master/vix.md).**
+**Works with VMware Workstation 14/15, VMware Fusion 14/15, Hyper-V and VirtualBox 7. VMware Workstation Player 14/15 users, see [here](https://github.com/dhinakg/vm-rpc/blob/master/vix.md).**
 
 ### How to use
 
 1. Create a Discord app. [https://discordapp.com/developers/](https://discordapp.com/developers/)
 2. Install Python 3.
-3. Install `pypresence` from `pip`.
-4. Rename `sample-settings.json` to `settings.json` and configure your settings as neccessary.
+3. Install `pypresence` and `pytz` (for vm uptime in VirtualBox) from `pip`.
+4. Rename `vmware-sample-settings.json` or `vbox-sample-settings.json` to `settings.json` and configure your settings as neccessary.
 5. Run `main.py`. Hyper-V support requires adminstrator privileges.
 
 **Note: If you get `Access is denied`, restart Discord.**

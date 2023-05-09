@@ -1,0 +1,9 @@
+{
+	"largeImage": "vm",
+	"smallImage": "vm",
+	"virtualbox": {
+		"path": "C:/Program Files (x86)/Oracle/VirtualBox",
+		"enabled": true
+	},
+	"clientID": 123456789098765432
+}
