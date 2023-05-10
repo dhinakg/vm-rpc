@@ -1,7 +1,7 @@
 from pypresence import Presence, DiscordError, exceptions, InvalidPipe # For rich presence
-import subprocess # For running VMs
 from datetime import datetime # For epoch time
-from pytz import all_timezones, timezone, UnknownTimeZoneError
+from pytz import timezone, UnknownTimeZoneError
+from tzlocal import get_localzone_name
 from pathlib import * # For reading files
 from vmware import vmware
 from hyperv import hyperv
@@ -25,22 +25,12 @@ def clear():
     return running
 
 def timezone_input(timezone_test):
-    if timezone_test:
-        try:
-            tz = timezone(timezone_test)
-            return tz
-        except UnknownTimeZoneError:
-            print("Enter a valid timezone via their TZ identifier (found here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)")
-    while True:
-        try:
-            tz = timezone(input("Enter timezone: "))
-            break
-        except UnknownTimeZoneError:
-            print("Enter a valid timezone via their TZ identifier")
-            if input("Should valid identifiers be listed? Press enter to skip"):
-                for tz in all_timezones:
-                    print(tz)
-    return tz
+    try:
+        tz = timezone(timezone_test)
+        return tz
+    except UnknownTimeZoneError:
+        print("Enter a valid timezone via their TZ identifier (found here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)")
+    exit()
 
 running = False
 
@@ -157,7 +147,10 @@ else:
     smallimage = None
 # Get timezone for Virtualbox
 if "virtualbox" in hypervisors:
-    tz = timezone_input(settings["virtualbox"].get("timezone"))
+    if settings["virtualbox"].get("timezone"):
+        tz = timezone_input(settings["virtualbox"].get("timezone"))
+    else:
+        tz = timezone_input(get_localzone_name())
 
 settingsPath = Path("settings.json")
 json.dump(settings, Path("settings.json").open(mode="w",), indent="\t")
