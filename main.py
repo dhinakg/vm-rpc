@@ -112,7 +112,7 @@ if "virtualbox" in hypervisors:
             virtualboxpath = input("Enter path to VirtualBox folder: ")
             settings["virtualbox"]["path"] = virtualboxpath
     else:
-        virtualbox = Path("vboxmanage")
+        virtualboxpath = Path("vboxmanage")
 
 # Get large image key
 if settings.get("largeImage"):
