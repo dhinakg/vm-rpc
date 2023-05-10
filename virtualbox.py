@@ -24,16 +24,17 @@ class virtualbox(object):
             output = output.split("\r\n")
         else:
             output = output.split("\n")
-        self.output = [x[:x.find(' ')].replace('"','') for x in output if len(x)]
-        if self.runCount() == 1:
-            vminfo = subprocess.run([str(self.vmrunpath), "showvminfo", self.getGuestName(0)], stdout=subprocess.PIPE)
+        self.output = [{"Name": x[:x.find(' {')].strip().replace('"',''), "Hash": x[x.find(' {'):].strip()} for x in output if len(x)]
+        self.vminfo = [ [] for _ in range(self.runCount()) ]
+        for i in range(self.runCount()):
+            vminfo = subprocess.run([str(self.vmrunpath), "showvminfo", self.getGuestName(i)], stdout=subprocess.PIPE)
             vminfo = vminfo.stdout.decode("utf-8")
-            vminfo = vminfo.replace('Name','displayName',1)
+            vminfo = vminfo.replace("Name","displayName",1)
             if platform.lower() == "win32":
                 vminfo = vminfo.split("\r\n")
             else:
                 vminfo = vminfo.split("\n")
-            self.vminfo = {line.split(':',1)[0].strip():line.split(':',1)[1].strip() if len(line.split(':',1)) > 1 else "Undefined" for line in vminfo if line.find(':') != -1 and line[0].strip() != '#'}
+            self.vminfo[i] = {line.split(':',1)[0].strip():line.split(':',1)[1].strip() if len(line.split(':',1)) > 1 else "Undefined" for line in vminfo if line.find(':') != -1 and line[0].strip() != '#'}
 
     def runCount(self):
         return len(self.output)
@@ -42,24 +43,22 @@ class virtualbox(object):
             return True
         else:
             return False
-    def getVMProperty(self, property):
-        return self.vminfo[property]
-    def getRunningVMPath(self):
+    def getVMProperty(self, index, property):
+        return self.vminfo[index][property]
+    def getRunningVMPath(self, index = None):
         if self.isRunning() == False:
             return None
-        return self.getVMProperty('Location')
+        elif index != None:
+            return self.getVMProperty(index, "Location")
+        else:
+            return self.getVMProperty(0, "Location")
     def getGuestName(self, index : int = 0):
-        return self.output[index]
-    def getRunningGuestName(self):
-        return self.getVMProperty("displayName")
-    def getVMuptime(self):
-        state = self.getVMProperty('State')
+        return self.output[index]["Name"]
+    def getRunningGuestName(self, index):
+        return self.getVMProperty(index, "displayName")
+    def getVMuptime(self, index):
+        state = self.getVMProperty(index, "State")
         dt = datetime.datetime.fromisoformat(state[state.find('since')+6:state.find('.')]) # Date is in the format of `running (since 2023-05-10T10:32:30.185000000)`
         dt = utc.localize(dt)
         dt = dt.astimezone(self.tz)
         return int(dt.timestamp())
-
-if __name__ == '__main__':
-    vbox = virtualbox("F:/Program Files (x86)/Oracle/VirtualBox")
-    vbox.updateOutput()
-    vbox.getVMuptime()
