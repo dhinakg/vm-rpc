@@ -1,6 +1,7 @@
 from pypresence import Presence, DiscordError, exceptions, InvalidPipe # For rich presence
 import subprocess # For running VMs
 from datetime import datetime # For epoch time
+from pytz import all_timezones, timezone, UnknownTimeZoneError
 from pathlib import * # For reading files
 from vmware import vmware
 from hyperv import hyperv
@@ -22,6 +23,24 @@ def clear():
         print("Stopped running VMs.")
         running = False
     return running
+
+def timezone_input(timezone_test):
+    if timezone_test:
+        try:
+            tz = timezone(timezone_test)
+            return tz
+        except UnknownTimeZoneError:
+            print("Enter a valid timezone via their TZ identifier (found here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)")
+    while True:
+        try:
+            tz = timezone(input("Enter timezone: "))
+            break
+        except UnknownTimeZoneError:
+            print("Enter a valid timezone via their TZ identifier")
+            if input("Should valid identifiers be listed? Press enter to skip"):
+                for tz in all_timezones:
+                    print(tz)
+    return tz
 
 running = False
 
@@ -136,6 +155,9 @@ elif Path("smallImage.txt").is_file():
 else:
     # None found, ignore
     smallimage = None
+# Get timezone for Virtualbox
+if "virtualbox" in hypervisors:
+    tz = timezone_input(settings["virtualbox"].get("timezone"))
 
 settingsPath = Path("settings.json")
 json.dump(settings, Path("settings.json").open(mode="w",), indent="\t")
@@ -150,7 +172,7 @@ if "hyper-v" in hypervisors:
 
 if "virtualbox" in hypervisors:
     # Initialize VirtualBox
-    virtualbox = virtualbox(virtualboxpath)
+    virtualbox = virtualbox(virtualboxpath,tz)
 
 # Set up RPC
 RPC = Presence(clientID)

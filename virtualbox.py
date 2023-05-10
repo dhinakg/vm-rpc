@@ -2,21 +2,21 @@ import subprocess
 from pathlib import *
 from sys import platform
 import datetime
-import pytz
+from pytz import UTC
 
-utc = pytz.UTC
-tz = pytz.timezone('Europe/Berlin')
+utc = UTC
 
 class virtualbox(object):
     vmrunpath = None
     output = None
-    def __init__(self, virtualboxpath):
+    def __init__(self, virtualboxpath, tz):
         if platform.lower() == "win32":
             virtualboxpath = virtualboxpath.replace('\"', "")
             virtualboxpath = virtualboxpath.replace("\'", "")
             self.vmrunpath = Path(virtualboxpath).joinpath("VBoxManage.exe")
         else:
             self.vmrunpath = virtualboxpath
+        self.tz = tz
     def updateOutput(self):
         output = subprocess.run([str(self.vmrunpath), "list", "runningvms"], stdout=subprocess.PIPE)
         output = output.stdout.decode("utf-8")
@@ -54,9 +54,9 @@ class virtualbox(object):
         return self.getVMProperty("displayName")
     def getVMuptime(self):
         state = self.getVMProperty('State')
-        dt = datetime.datetime.fromisoformat(state[state.find('since')+6:state.find('.')])
+        dt = datetime.datetime.fromisoformat(state[state.find('since')+6:state.find('.')]) # Date is in the format of `running (since 2023-05-10T10:32:30.185000000)`
         dt = utc.localize(dt)
-        dt = dt.astimezone(tz)
+        dt = dt.astimezone(self.tz)
         return int(dt.timestamp())
 
 if __name__ == '__main__':
