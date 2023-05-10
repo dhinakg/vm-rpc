@@ -91,15 +91,15 @@ if "vmware" in hypervisors:
         vmwarepath = Path("vmrun")
 if "virtualbox" in hypervisors:
     # Get path to VirtualBox
-    if platform.lower() == "win32":
-        if "virtualbox" in settings and settings.get("virtualbox").get("path"):
-            # VirtualBox path found in settings.json and it's not blank (NoneType/blank strings == False)
-            virtualboxpath = settings.get("virtualbox").get("path")
-        elif Path("virtualboxPath.txt").is_file():
-            # VirtualBox path found in legacy file
-            virtualboxpath = Path("virtualboxPath.txt").read_text()
-            settings["virtualbox"]["path"] = virtualboxpath
-        elif Path("C:/Program Files (x86)/Oracle/VirtualBox/VBoxManage.exe").is_file():
+    if "virtualbox" in settings and settings.get("virtualbox").get("path"):
+        # VirtualBox path found in settings.json and it's not blank (NoneType/blank strings == False)
+        virtualboxpath = settings.get("virtualbox").get("path")
+    elif Path("virtualboxPath.txt").is_file():
+        # VirtualBox path found in legacy file
+        virtualboxpath = Path("virtualboxPath.txt").read_text()
+        settings["virtualbox"]["path"] = virtualboxpath
+    else:
+        if Path("C:/Program Files (x86)/Oracle/VirtualBox/VBoxManage.exe").is_file():
             print("Using C:/Program Files (x86)/Oracle/VirtualBox/ as path.")
             virtualboxpath = Path("C:/Program Files (x86)/Oracle/VirtualBox/")
             settings["virtualbox"]["path"] = virtualboxpath.as_posix()
@@ -107,12 +107,14 @@ if "virtualbox" in hypervisors:
             print("Using C:/Program Files/Oracle/VirtualBox/ as path.")
             virtualboxpath = Path("C:/Program Files/Oracle/VirtualBox")
             settings["virtualbox"]["path"] = virtualboxpath.as_posix()
+        elif Path("/usr/bin/vboxmanage").is_file():
+            print("Using /usr/bin/vboxmanage as path.")
+            virtualboxpath = Path("/usr/bin/vboxmanage")
+            settings["virtualbox"]["path"] = virtualboxpath.as_posix()
         else:
             # Prompt for path
             virtualboxpath = input("Enter path to VirtualBox folder: ")
             settings["virtualbox"]["path"] = virtualboxpath
-    else:
-        virtualboxpath = Path("vboxmanage")
 
 # Get large image key
 if settings.get("largeImage"):
