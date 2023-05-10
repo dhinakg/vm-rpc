@@ -90,7 +90,7 @@ if "vmware" in hypervisors:
     else:
         vmwarepath = Path("vmrun")
 if "virtualbox" in hypervisors:
-    # Get path to VMware
+    # Get path to VirtualBox
     if platform.lower() == "win32":
         if "virtualbox" in settings and settings.get("virtualbox").get("path"):
             # VirtualBox path found in settings.json and it's not blank (NoneType/blank strings == False)
