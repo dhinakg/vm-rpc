@@ -263,19 +263,19 @@ while True:
         else:
             running = True
             # Init variable
-            displayName = virtualbox.getRunningGuestName()
+            displayName = virtualbox.getRunningGuestName(0)
             STATUS = "Virtualizing " + displayName # Set status
             vmcount = None # Only 1 VM, so set vmcount to None
             HYPERVISOR = "VirtualBox"
     if STATUS != LASTSTATUS and STATUS != None: # To prevent spamming Discord, only update when something changes
         print("Rich presence updated locally; new rich presence is: " + STATUS + " (using " + HYPERVISOR + ")") # Report of status change, before ratelimit
-        if epoch_time == 0: # Only change the time if we stopped running VMs before
+        if virtualbox.isRunning() and virtualbox.runCount() == 1:
+            print("running solo")
+            epoch_time = virtualbox.getVMuptime(0)
+        elif epoch_time == 0: # Only change the time if we stopped running VMs before
             # Get epoch time
-            if virtualbox.isRunning() and virtualbox.runCount() == 1:
-                epoch_time = virtualbox.getVMuptime()
-            else:
-                now = datetime.utcnow()
-                epoch_time = int((now - datetime(1970, 1, 1)).total_seconds())
+            now = datetime.utcnow()
+            epoch_time = int((now - datetime(1970, 1, 1)).total_seconds())
         if largeimage == None:
             largetext = None
         else:
