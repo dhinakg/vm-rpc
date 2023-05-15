@@ -12,7 +12,7 @@ Discord RPC for VMs.
 
 1. Create a Discord app. [https://discordapp.com/developers/](https://discordapp.com/developers/)
 2. Install Python 3.
-3. Install `pypresence` and `pytz` (for vm uptime in VirtualBox) by running `pip -r requirements.txt`.
+3. Install `pypresence`, `pytz` and ˋtzlocalˋ (for vm uptime in VirtualBox) by running `pip -r requirements.txt`.
 4. Rename `vmware-sample-settings.json` or `vbox-sample-settings.json` to `settings.json` and configure your settings as neccessary.
 5. Run `main.py`. Hyper-V support requires adminstrator privileges.
 
