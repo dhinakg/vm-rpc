@@ -2,7 +2,7 @@ from pypresence import Presence, DiscordError, exceptions, InvalidPipe # For ric
 from datetime import datetime # For epoch time
 from pytz import timezone, UnknownTimeZoneError
 from tzlocal import get_localzone_name
-from pathlib import * # For reading files
+from pathlib import Path # For reading files
 from vmware import vmware
 from hyperv import hyperv
 from virtualbox import virtualbox
@@ -10,24 +10,20 @@ from time import sleep
 from sys import platform
 import json
 
-def clear():
-    global epoch_time
-    global STATUS
-    global LASTSTATUS
-    global running
+def clear() -> bool:
+    global epoch_time, STATUS, LASTSTATUS, running
     epoch_time = 0
     RPC.clear()
     STATUS = None
     LASTSTATUS = None
-    if running == True:
+    if running:
         print("Stopped running VMs.")
         running = False
     return running
 
 def timezone_input(timezone_test):
     try:
-        tz = timezone(timezone_test)
-        return tz
+        return timezone(timezone_test)
     except UnknownTimeZoneError:
         print("Enter a valid timezone via their TZ identifier (found here: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)")
     exit()
@@ -37,7 +33,7 @@ running = False
 # load JSON settings file
 if Path("settings.json").is_file() and Path("settings.json").stat().st_size != 0:
     # Settings file found
-    settings = json.load(open("settings.json"))
+    settings = json.load(open("settings.json", encoding="utf-8"))
 else:
     Path("settings.json").touch()
     settings = {}
@@ -48,7 +44,7 @@ if settings.get("clientID"):
     clientID = settings.get("clientID")
 elif Path("clientID.txt").is_file():
     # Client ID found in legacy file
-    client_ID = Path("clientID.txt").read_text()
+    client_ID = Path("clientID.txt").read_text(encoding="utf-8")
 else:
     # Prompt for ID
     clientID = input("Enter client ID: ")
@@ -65,10 +61,10 @@ if "hyper-v" in settings and settings.get("hyper-v").get("enabled", True):
 if "virtualbox" in settings and settings.get("virtualbox").get("enabled", True):
     hypervisors.append("virtualbox")
     settings["virtualbox"]["enabled"] = True
-if hypervisors == []:
+if not hypervisors:
     if Path("hypervisors.txt").is_file():
         # Client ID found in legacy file
-        hypervisors = Path("hypervisors.txt").read_text()
+        hypervisors = Path("hypervisors.txt").read_text(encoding="utf-8")
         hypervisors = hypervisors.casefold().split("\n")
     else:
         hypervisors = ["vmware", "hyper-v", "virtualbox"]
@@ -77,12 +73,12 @@ if hypervisors == []:
 if "vmware" in hypervisors:
     # Get path to VMware
     if platform.lower() == "win32":
-        if "vmware" in settings and settings.get("vmware").get("path"):
+        if "vmware" in settings and settings["vmware"].get("path"):
             # VMware path found in settings.json and it's not blank (NoneType/blank strings == False)
-            vmwarepath = settings.get("vmware").get("path")
+            vmwarepath = settings["vmware"].get("path")
         elif Path("vmwarePath.txt").is_file():
             # VMware path found in legacy file
-            vmwarepath = Path("vmwarePath.txt").read_text()
+            vmwarepath = Path("vmwarePath.txt").read_text(encoding="utf-8")
             settings["vmware"]["path"] = vmwarepath
         elif Path("C:/Program Files (x86)/VMware/VMware Workstation/vmrun.exe").is_file():
             print("Using C:/Program Files (x86)/VMware/VMware Workstation as path.")
@@ -100,12 +96,12 @@ if "vmware" in hypervisors:
         vmwarepath = Path("vmrun")
 if "virtualbox" in hypervisors:
     # Get path to VirtualBox
-    if "virtualbox" in settings and settings.get("virtualbox").get("path"):
+    if "virtualbox" in settings and settings["virtualbox"].get("path"):
         # VirtualBox path found in settings.json and it's not blank (NoneType/blank strings == False)
-        virtualboxpath = settings.get("virtualbox").get("path")
+        virtualboxpath = settings["virtualbox"].get("path")
     elif Path("virtualboxPath.txt").is_file():
         # VirtualBox path found in legacy file
-        virtualboxpath = Path("virtualboxPath.txt").read_text()
+        virtualboxpath = Path("virtualboxPath.txt").read_text(encoding="utf-8")
         settings["virtualbox"]["path"] = virtualboxpath
     else:
         if Path("C:/Program Files (x86)/Oracle/VirtualBox/VBoxManage.exe").is_file():
@@ -130,7 +126,7 @@ if settings.get("largeImage"):
     largeimage = settings.get("largeImage")
 elif Path("largeImage.txt").is_file():
     # Large image key found in legacy file
-    largeimage = Path("largeImage.txt").read_text()
+    largeimage = Path("largeImage.txt").read_text(encoding="utf-8")
     settings["largeImage"] = largeimage
 else:
     # None found, ignore
@@ -140,7 +136,7 @@ if settings.get("smallImage"):
     smallimage = settings.get("smallImage")
 elif Path("smallImage.txt").is_file():
     # Small image key found in legacy file
-    smallimage = Path("smallImage.txt").read_text()
+    smallimage = Path("smallImage.txt").read_text(encoding="utf-8")
     settings["smallImage"] = smallimage
 else:
     # None found, ignore
@@ -165,7 +161,7 @@ if "hyper-v" in hypervisors:
 
 if "virtualbox" in hypervisors:
     # Initialize VirtualBox
-    virtualbox = virtualbox(virtualboxpath,tz)
+    virtualbox = virtualbox(virtualboxpath, tz)
 
 # Set up RPC
 RPC = Presence(clientID)
@@ -268,10 +264,10 @@ while True:
             # Get epoch time
             now = datetime.utcnow()
             epoch_time = int((now - datetime(1970, 1, 1)).total_seconds())
-        if largeimage == None:
+        if largeimage is None:
             largetext = None
         else:
             largetext = "Check out vm-rpc by DhinakG on GitHub!"
         # The big RPC update
-        RPC.update(state=STATUS,details="Running " + HYPERVISOR,small_image=smallimage,large_image=largeimage,small_text=HYPERVISOR,large_text=largetext,start=epoch_time,party_size=vmcount)
+        RPC.update(state=STATUS, details="Running " + HYPERVISOR, small_image=smallimage, large_image=largeimage, small_text=HYPERVISOR, large_text=largetext, start=epoch_time, party_size=vmcount)
         LASTSTATUS = STATUS # Update last status to last status sent
