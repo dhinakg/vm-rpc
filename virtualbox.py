@@ -7,8 +7,6 @@ from pytz import UTC
 utc = UTC
 
 class virtualbox(object):
-    vmrunpath = None
-    output = None
 
     def __init__(self, virtualboxpath, tz) -> None:
         if platform.lower() == "win32":
@@ -18,7 +16,8 @@ class virtualbox(object):
         else:
             self.vmrunpath = virtualboxpath
         self.tz = tz
-        self.vminfo = None
+        self.vminfo = []
+        self.output = []
 
     def updateOutput(self) -> None:
         output = subprocess.run([str(self.vmrunpath), "list", "runningvms"], stdout=subprocess.PIPE)
@@ -53,7 +52,7 @@ class virtualbox(object):
 
     def getRunningVMPath(self, index=None) -> str:
         if self.isRunning() == False:
-            return None
+            return ''
         elif index != None:
             return self.getVMProperty(index, "Location")
         else:
