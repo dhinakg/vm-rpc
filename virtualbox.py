@@ -21,8 +21,10 @@ class virtualbox(object):
         self.vminfo = None
 
     def updateOutput(self) -> None:
-        output = subprocess.run([str(self.vmrunpath), "list", "runningvms"], stdout=subprocess.PIPE)
-        output = output.stdout.decode("utf-8")
+        # output = subprocess.run([str(self.vmrunpath), "list", "runningvms"], stdout=subprocess.PIPE)
+        # output = output.stdout.decode("utf-8")
+        with subprocess.Popen([str(self.vmrunpath), "list", "runningvms"], stdout=subprocess.PIPE) as proc:
+            output = proc.stdout.read().decode()
         if platform.lower() == "win32":
             output = output.split("\r\n")
         else:
@@ -30,8 +32,10 @@ class virtualbox(object):
         self.output = [{"Name": x[:x.find(' {')].strip().replace('"', ''), "Hash": x[x.find(' {'):].strip()} for x in output if len(x)]
         self.vminfo = [[] for _ in range(self.runCount())]
         for i in range(self.runCount()):
-            vminfo = subprocess.run([str(self.vmrunpath), "showvminfo", self.getGuestName(i)], stdout=subprocess.PIPE)
-            vminfo = vminfo.stdout.decode("utf-8")
+            # vminfo = subprocess.run([str(self.vmrunpath), "showvminfo", self.getGuestName(i)], stdout=subprocess.PIPE)
+            # vminfo = vminfo.stdout.decode("utf-8")
+            with subprocess.Popen([str(self.vmrunpath), "showvminfo", self.getGuestName(i)], stdout=subprocess.PIPE) as proc:
+                vminfo = proc.stdout.read().decode()
             vminfo = vminfo.replace("Name", "displayName", 1)
             if platform.lower() == "win32":
                 vminfo = vminfo.split("\r\n")
