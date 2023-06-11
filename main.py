@@ -1,5 +1,6 @@
 from pypresence import Presence, DiscordError, exceptions, InvalidPipe # For rich presence
 from datetime import datetime # For epoch time
+from time import sleep
 from pytz import timezone, UnknownTimeZoneError
 from tzlocal import get_localzone_name
 from pathlib import Path # For reading files
@@ -94,17 +95,14 @@ if "vmware" in hypervisors:
             settings["vmware"]["path"] = vmwarepath
     else:
         vmwarepath = Path("vmrun")
+
 if "virtualbox" in hypervisors:
     # Get path to VirtualBox
-    if "virtualbox" in settings and settings["virtualbox"].get("path"):
-        # VirtualBox path found in settings.json and it's not blank (NoneType/blank strings == False)
-        virtualboxpath = settings["virtualbox"].get("path")
-    elif Path("virtualboxPath.txt").is_file():
-        # VirtualBox path found in legacy file
-        virtualboxpath = Path("virtualboxPath.txt").read_text(encoding="utf-8")
-        settings["virtualbox"]["path"] = virtualboxpath
-    else:
-        if Path("C:/Program Files (x86)/Oracle/VirtualBox/VBoxManage.exe").is_file():
+    if platform.lower() == "win32":
+        if "virtualbox" in settings and settings["virtualbox"].get("path"):
+            # VirtualBox path found in settings.json and it's not blank (NoneType/blank strings == False)
+            virtualboxpath = settings["virtualbox"].get("path")
+        elif Path("C:/Program Files (x86)/Oracle/VirtualBox/VBoxManage.exe").is_file():
             print("Using C:/Program Files (x86)/Oracle/VirtualBox/ as path.")
             virtualboxpath = Path("C:/Program Files (x86)/Oracle/VirtualBox/")
             settings["virtualbox"]["path"] = virtualboxpath.as_posix()
@@ -112,14 +110,12 @@ if "virtualbox" in hypervisors:
             print("Using C:/Program Files/Oracle/VirtualBox/ as path.")
             virtualboxpath = Path("C:/Program Files/Oracle/VirtualBox")
             settings["virtualbox"]["path"] = virtualboxpath.as_posix()
-        elif Path("/usr/bin/vboxmanage").is_file():
-            print("Using /usr/bin/vboxmanage as path.")
-            virtualboxpath = Path("/usr/bin/vboxmanage")
-            settings["virtualbox"]["path"] = virtualboxpath.as_posix()
         else:
             # Prompt for path
             virtualboxpath = input("Enter path to VirtualBox folder: ")
             settings["virtualbox"]["path"] = virtualboxpath
+    else:
+        virtualboxpath = Path("vboxmanage")
 
 # Get large image key
 if settings.get("largeImage"):
@@ -134,10 +130,6 @@ else:
 # Get small image key
 if settings.get("smallImage"):
     smallimage = settings.get("smallImage")
-elif Path("smallImage.txt").is_file():
-    # Small image key found in legacy file
-    smallimage = Path("smallImage.txt").read_text(encoding="utf-8")
-    settings["smallImage"] = smallimage
 else:
     # None found, ignore
     smallimage = None
@@ -271,3 +263,4 @@ while True:
         # The big RPC update
         RPC.update(state=STATUS, details="Running " + HYPERVISOR, small_image=smallimage, large_image=largeimage, small_text=HYPERVISOR, large_text=largetext, start=epoch_time, party_size=vmcount)
         LASTSTATUS = STATUS # Update last status to last status sent
+    sleep(1)
