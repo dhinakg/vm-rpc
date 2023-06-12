@@ -3,8 +3,13 @@
 		"enabled": true
 	},
 	"largeImage": "vm",
+	"smallImage": "vm",
 	"vmware": {
 		"path": "C:/Program Files (x86)/VMware/VMware Workstation/",
+		"enabled": true
+	},
+	"virtualbox": {
+		"path": "C:/Program Files (x86)/Oracle/VirtualBox",
 		"enabled": true
 	},
 	"clientID": 123456789098765432
