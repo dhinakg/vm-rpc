@@ -1,1 +1,2 @@
 pypresence
+python-dateutil

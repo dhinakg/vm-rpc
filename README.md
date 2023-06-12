@@ -12,8 +12,8 @@ Discord RPC for VMs.
 
 1. Create a Discord app. [https://discordapp.com/developers/](https://discordapp.com/developers/)
 2. Install Python 3.
-3. Install `pypresence` by running `pip -r requirements.txt`.
-4. Rename `vmware-sample-settings.json` or `vbox-sample-settings.json` to `settings.json` and configure your settings as neccessary.
+3. Install `pypresence` and `python-dateutil` by running `pip -r requirements.txt`.
+4. Rename `sample-settings.json` to `settings.json` and configure your settings as neccessary.
 5. Run `main.py`. Hyper-V support requires adminstrator privileges.
 
 **Note: If you get `Access is denied`, restart Discord.**
