@@ -3,7 +3,7 @@ from pathlib import Path
 from sys import platform
 import datetime
 from pytz import UTC
-
+from dateutil import parser
 utc = UTC
 
 def find_dict_in_list(dict_name : str, arr : list) -> dict: #finds the dict whose first key is equal to the specified name in a list
@@ -11,14 +11,13 @@ def find_dict_in_list(dict_name : str, arr : list) -> dict: #finds the dict whos
 
 class virtualbox(object):
 
-    def __init__(self, virtualboxpath, tz) -> None:
+    def __init__(self, virtualboxpath) -> None:
         if platform.lower() == "win32":
             virtualboxpath = virtualboxpath.replace('\"', "")
             virtualboxpath = virtualboxpath.replace("\'", "")
             self.vmrunpath = Path(virtualboxpath).joinpath("VBoxManage.exe")
         else:
             self.vmrunpath = virtualboxpath
-        self.tz = tz
         self.vminfo = []
         self.output = []
 
@@ -65,9 +64,6 @@ class virtualbox(object):
         return self.output[index][self.getRunningGuestName(index)][property]
 
     def getVMuptime(self, index) -> int:
-        state = self.getVMProperty(index, "State")
         # Date is in the format of `running (since 2023-05-10T10:32:30.185000000)`
-        dt = datetime.datetime.fromisoformat(state[state.find('since')+6:state.find('.')])
-        dt = utc.localize(dt)
-        dt = dt.astimezone(self.tz)
-        return int(dt.timestamp())
+        state = self.getVMProperty(index, "State")
+        return int(parser.parse(state[state.find('since')+6:state.find('.')]).replace(tzinfo=datetime.timezone.utc).timestamp())
