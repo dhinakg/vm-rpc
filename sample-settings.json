@@ -9,7 +9,7 @@
 		"enabled": true
 	},
 	"virtualbox": {
-		"path": "C:/Program Files (x86)/Oracle/VirtualBox",
+		"path": "C:/Program Files/Oracle/VirtualBox",
 		"enabled": true
 	},
 	"clientID": 123456789098765432

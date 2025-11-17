@@ -1,2 +1,2 @@
 pypresence
-python-dateutil
+pytz

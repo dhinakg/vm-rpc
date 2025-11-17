@@ -23,14 +23,11 @@ class hyperv(object):
     def isFound(self):
         if platform.lower() != "win32":
             return False
-        elif self.runningVMs != []:
-            self.updateRunningVMs();
-            if "not recognized" in self.runningVMs[0]:
-                return False
-            else:
-                return True
-        else:
-            return True
+        installed = subprocess.run(["powershell", "Get-VM"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+        installed = installed.stdout.decode("utf-8") + installed.stderr.decode("utf-8")
+        if "not recognized" in installed.lower():
+            return False
+        return True
     def runCount(self):
         if self.runningVMs == []:
             return 0

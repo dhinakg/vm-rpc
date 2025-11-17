@@ -1,15 +1,15 @@
-from pypresence import Presence, InvalidPipe # For rich presence
-from datetime import datetime # For epoch time
-from time import sleep
-from pathlib import Path # For reading files
+from pypresence.presence import Presence
+from pypresence import InvalidPipe
+from time import sleep 
+from pathlib import Path
 from vmware import vmware
 from hyperv import hyperv
 from virtualbox import virtualbox
-from time import sleep
+from datetime import datetime, UTC
 from sys import platform
 import json
 
-def clear() -> bool:
+def clear() -> None:
     global epoch_time, STATUS, LASTSTATUS, running
     epoch_time = 0
     RPC.clear()
@@ -22,10 +22,11 @@ def clear() -> bool:
 
 running = False
 
-# load JSON settings file
+# Load JSON settings file
 if Path("settings.json").is_file() and Path("settings.json").stat().st_size != 0:
     # Settings file found
-    settings = json.load(open("settings.json", encoding="utf-8"))
+    with open("settings.json", encoding="utf-8") as f:
+        settings = json.load(f)
 else:
     Path("settings.json").touch()
     settings = {}
@@ -33,24 +34,24 @@ else:
 # Get client ID
 if settings.get("clientID"):
     # client ID found in settings.json and it's not blank (NoneType/blank strings == False)
-    clientID = settings.get("clientID")
+    client_id = settings.get("clientID")
 elif Path("clientID.txt").is_file():
     # Client ID found in legacy file
-    client_ID = Path("clientID.txt").read_text(encoding="utf-8")
+    client_id = Path("clientID.txt").read_text(encoding="utf-8")
 else:
     # Prompt for ID
-    clientID = input("Enter client ID: ")
-    settings["clientID"] = clientID
+    client_id = input("Enter client ID: ")
+    settings["clientID"] = client_id
 
 # get hypervisors
 hypervisors = []
-if "vmware" in settings and settings.get("vmware").get("enabled", True):
+if "vmware" in settings and settings["vmware"].get("enabled", True):
     hypervisors.append("vmware")
     settings["vmware"]["enabled"] = True
-if "hyper-v" in settings and settings.get("hyper-v").get("enabled", True):
+if "hyper-v" in settings and settings["hyper-v"].get("enabled", True):
     hypervisors.append("hyper-v")
     settings["hyper-v"]["enabled"] = True
-if "virtualbox" in settings and settings.get("virtualbox").get("enabled", True):
+if "virtualbox" in settings and settings["virtualbox"].get("enabled", True):
     hypervisors.append("virtualbox")
     settings["virtualbox"]["enabled"] = True
 if not hypervisors:
@@ -93,9 +94,9 @@ if "virtualbox" in hypervisors:
         if "virtualbox" in settings and settings["virtualbox"].get("path"):
             # VirtualBox path found in settings.json and it's not blank (NoneType/blank strings == False)
             virtualboxpath = settings["virtualbox"].get("path")
-        elif Path("C:/Program Files (x86)/Oracle/VirtualBox/VBoxManage.exe").is_file():
-            print("Using C:/Program Files (x86)/Oracle/VirtualBox/ as path.")
-            virtualboxpath = Path("C:/Program Files (x86)/Oracle/VirtualBox/")
+        elif Path("C:/Program Files/Oracle/VirtualBox/VBoxManage.exe").is_file():
+            print("Using C:/Program Files/Oracle/VirtualBox/ as path.")
+            virtualboxpath = Path("C:/Program Files/Oracle/VirtualBox/")
             settings["virtualbox"]["path"] = virtualboxpath.as_posix()
         elif Path("C:/Program Files/Oracle/VirtualBox/VBoxManage.exe").is_file():
             print("Using C:/Program Files/Oracle/VirtualBox/ as path.")
@@ -119,29 +120,24 @@ else:
     # None found, ignore
     largeimage = None
 # Get small image key
-if settings.get("smallImage"):
-    smallimage = settings.get("smallImage")
-else:
-    # None found, ignore
-    smallimage = None
+smallimage = settings.get("smallImage")
 
-settingsPath = Path("settings.json")
-json.dump(settings, Path("settings.json").open(mode="w",), indent="\t")
+with open("settings.json", "w", encoding="utf-8") as f:
+    json.dump(settings, f, indent="\t")
 
 if "vmware" in hypervisors:
     # Initialize VMware
-    vmware = vmware(vmwarepath)
+    vmware = vmware(str(vmwarepath))
 
 if "hyper-v" in hypervisors:
     # Initialize Hyper-V
     hyperv = hyperv()
-
 if "virtualbox" in hypervisors:
     # Initialize VirtualBox
-    virtualbox = virtualbox(virtualboxpath)
+    virtualbox = virtualbox(str(virtualboxpath))
 
 # Set up RPC
-RPC = Presence(clientID)
+RPC = Presence(client_id)
 try:
     RPC.connect()
 except InvalidPipe:
@@ -156,8 +152,6 @@ except InvalidPipe:
         sleep(5)
 else:
     print("Connected to RPC.")
-# RPC.connect()
-# print("Connected to RPC.")
 # Create last sent status so we don't spam Discord
 LASTSTATUS = None
 STATUS = None
@@ -171,81 +165,66 @@ print("Please note that Discord has a 15 second ratelimit in sending Rich Presen
 while True:
     # Run vmrun list, capture output, and split it up
     STATUS = None
-    if "vmware" in hypervisors:
-        vmware.updateOutput()
-        if vmware.isRunning() == False:
-            # No VMs running, clear rich presence and set time to update on next change
-            clear()
-        elif vmware.runCount() > 1:
-            running = True
-            # Too many VMs to fit in field
-            STATUS = "Running VMs"
-            # Get VM count so we can show how many are running
-            vmcount = [vmware.runCount(), vmware.runCount()]
-            HYPERVISOR = "VMware"
+    vmcount = None
+
+    for hv_name in hypervisors:
+        if hv_name == "vmware":
+            hv = vmware
+            hv.updateOutput()
+        elif hv_name == "hyper-v":
+            hv = hyperv
+            if not hv.isFound():
+                print("Hyper-V either not supported, enabled, or found on this machine. Disabling Hyper-V for this session.")
+                while "hyper-v" in hypervisors:
+                    hypervisors.remove("hyper-v")
+                continue
+            hv.updateRunningVMs()
+        elif hv_name == "virtualbox":
+            hv = virtualbox
+            hv.updateOutput()
         else:
-            running = True
-            # Init variable
-            displayName = vmware.getRunningGuestName(0)
-            STATUS = "Virtualizing " + displayName # Set status
-            vmcount = None # Only 1 VM, so set vmcount to None
-            HYPERVISOR = "VMware"
-    if "hyper-v" in hypervisors:
-        if hyperv.isFound() == False:
-            print("Hyper-V either not supported, enabled, or found on this machine. Disabling Hyper-V for this session.")
-            while "hyper-v" in hypervisors:
-                hypervisors.remove("hyper-v")
             continue
-        hyperv.updateRunningVMs()
-        if hyperv.isRunning() == False:
-            # No VMs running, clear rich presence and set time to update on next change
-            clear()
-        elif hyperv.runCount() > 1:
+        
+        HYPERVISOR = "VMware" if hv_name == "vmware" else "VirtualBox" if hv_name == "virtualbox" else "Hyper-V"
+        if hv.runCount() <= 0:
+            continue
+        if hv.runCount() > 1:
             running = True
             # Too many VMs to fit in field
             STATUS = "Running VMs"
             # Get VM count so we can show how many are running
-            vmcount = [hyperv.runCount(), hyperv.runCount()]
-            HYPERVISOR = "Hyper-V"
+            vmcount = [hv.runCount(), hv.runCount()]
         else:
             running = True
             # Init variable
-            displayName = hyperv.getRunningGuestName(0)
+            displayName = hv.getRunningGuestName(0)
             STATUS = "Virtualizing " + displayName # Set status
             vmcount = None # Only 1 VM, so set vmcount to none
-            HYPERVISOR = "Hyper-V"
-    if "virtualbox" in hypervisors:
-        virtualbox.updateOutput()
-        if virtualbox.isRunning() == False:
-            # No VMs running, clear rich presence and set time to update on next change
-            clear()
-        elif virtualbox.runCount() > 1:
-            running = True
-            # Too many VMs to fit in field
-            STATUS = "Running VMs"
-            # Get VM count so we can show how many are running
-            vmcount = [virtualbox.runCount(), virtualbox.runCount()]
-            HYPERVISOR = "VirtualBox"
-        else:
-            running = True
-            # Init variable
-            displayName = virtualbox.getRunningGuestName(0)
-            STATUS = "Virtualizing " + displayName # Set status
-            vmcount = None # Only 1 VM, so set vmcount to None
-            HYPERVISOR = "VirtualBox"
-    if STATUS != LASTSTATUS and STATUS != None: # To prevent spamming Discord, only update when something changes
-        print("Rich presence updated locally; new rich presence is: " + STATUS + " (using " + HYPERVISOR + ")") # Report of status change, before ratelimit
-        if virtualbox.isRunning() and virtualbox.runCount() == 1:
+        break  # Stop checking since a HV has VMs running
+    if STATUS is None:
+        clear()
+    if STATUS != LASTSTATUS and STATUS is not None: # To prevent spamming Discord, only update when something changes
+        print(f"Rich presence updated locally; new rich presence is: {STATUS} (using {HYPERVISOR})") # Report of status change, before ratelimit
+        if "virtualbox" in hypervisors and virtualbox.isRunning() and virtualbox.runCount() == 1: # Check if VirtualBox is in use
             epoch_time = virtualbox.getVMuptime(0)
         elif epoch_time == 0: # Only change the time if we stopped running VMs before
             # Get epoch time
-            now = datetime.utcnow()
-            epoch_time = int((now - datetime(1970, 1, 1)).total_seconds())
+            now = datetime.now(UTC)
+            epoch_time = int((now - datetime(1970, 1, 1, tzinfo=UTC)).total_seconds())
         if largeimage is None:
             largetext = None
         else:
             largetext = "Check out vm-rpc by DhinakG on GitHub!"
         # The big RPC update
-        RPC.update(state=STATUS, details="Running " + HYPERVISOR, small_image=smallimage, large_image=largeimage, small_text=HYPERVISOR, large_text=largetext, start=epoch_time, party_size=vmcount)
+        RPC.update(
+            state=STATUS,
+            details=f"Running {HYPERVISOR}",
+            small_image=smallimage,
+            large_image=largeimage,
+            small_text=HYPERVISOR,
+            large_text=largetext,
+            start=epoch_time,
+            party_size=vmcount
+        )
         LASTSTATUS = STATUS # Update last status to last status sent
     sleep(1)
